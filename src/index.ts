@@ -9,7 +9,8 @@ export {
   ComponentWillUpdate,
   Config,
   EventEmitter,
-  EventListenerEnable
+  EventListenerEnable,
+  StencilElementMixinOptions
 } from './declarations';
 
 /**
@@ -68,3 +69,9 @@ export declare const PropWillChange: d.WatchDecorator;
 export declare const PropDidChange: d.WatchDecorator;
 
 export interface HostElement extends HTMLElement {}
+
+
+export {
+  h,
+  StencilElement
+} from './client/mixins/stencil-element';

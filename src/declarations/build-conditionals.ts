@@ -6,6 +6,7 @@ export interface BuildConditionals {
   es5?: boolean;
   cssVarShim?: boolean;
   clientSide?: boolean;
+  asyncLoader?: boolean;
 
   // dev
   isDev: boolean;

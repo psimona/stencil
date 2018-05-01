@@ -2,20 +2,26 @@ const fs = require('fs-extra');
 const path = require('path');
 const rollup = require('rollup');
 const transpile = require('./transpile');
+const buildLoader = require('./build-loader');
+const buildMixins = require('./build-mixins');
 
 
-const ROOT_DIR = path.join(__dirname, '../');
+const ROOT_DIR = path.join(__dirname, '..');
 const DST_DIR = path.join(ROOT_DIR, 'dist');
 const SRC_DIR = path.join(ROOT_DIR, 'src');
 const TRANSPILED_DIR = path.join(DST_DIR, 'transpiled-core');
 const DIST_CLIENT_DIR = path.join(DST_DIR, 'client');
-const POLYFILLS_SRC_DIR = path.join(ROOT_DIR, 'scripts', 'polyfills');
-const POLYFILLS_DIST_DIR = path.join(DST_DIR, 'client', 'polyfills');
 const DECLARATIONS_SRC_DIR = path.join(ROOT_DIR, 'scripts', 'declarations');
 const DECLARATIONS_DIST_DIR = path.join(DST_DIR, 'client', 'declarations');
 
-const inputFile = path.join(TRANSPILED_DIR, 'client/core.js');
-const outputFile = path.join(DIST_CLIENT_DIR, 'core.build.js');
+const inputCoreFile = path.join(TRANSPILED_DIR, 'client', 'core.js');
+const outputCoreFile = path.join(DIST_CLIENT_DIR, 'core.build.js');
+
+const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'loader.js');
+const outputLoaderFile = path.join(DST_DIR, 'client', 'loader.js');
+
+const inputMixinFile = path.join(TRANSPILED_DIR, 'client', 'mixins', 'stencil-element.js');
+const outputMixinFile = path.join(DIST_CLIENT_DIR, 'mixins', 'stencil-element.js');
 
 
 const success = transpile('../src/tsconfig.json');
@@ -23,21 +29,22 @@ const success = transpile('../src/tsconfig.json');
 if (success) {
 
   // empty out the dist/client directory
-  fs.ensureDirSync(DIST_CLIENT_DIR);
+  fs.ensureDirSync(path.dirname(outputCoreFile));
+  fs.ensureDirSync(path.dirname(outputMixinFile));
 
 
   // tasks
   bundleClientCore();
-  createIndexJs();
-  copyMainDTs();
+  buildLoader(inputLoaderFile, outputLoaderFile);
+  buildMixins(inputMixinFile, outputMixinFile);
+  copyMain();
   copyClientFiles();
   copyUtilDir();
-  buildLoader();
 
 
   function bundleClientCore() {
     return rollup.rollup({
-      input: inputFile,
+      input: inputCoreFile,
       onwarn: (message) => {
         if (/top level of an ES module/.test(message)) return;
         console.error( message );
@@ -54,7 +61,7 @@ if (success) {
         let code = clientCore.code.trim();
         code = dynamicImportFnHack(code);
 
-        fs.writeFile(outputFile, code, (err) => {
+        fs.writeFile(outputCoreFile, code, (err) => {
           if (err) {
             console.log(err);
             process.exit(1);
@@ -79,15 +86,17 @@ if (success) {
 
 
   function copyClientFiles() {
-    fs.copySync(POLYFILLS_SRC_DIR, POLYFILLS_DIST_DIR);
     fs.copySync(DECLARATIONS_SRC_DIR, DECLARATIONS_DIST_DIR);
   }
 
 
-  function copyMainDTs() {
+  function copyMain() {
+    const readMainPath = path.join(TRANSPILED_DIR, 'index.js');
+    const writeMainPath = path.join(DST_DIR, 'index.js');
+    fs.copySync(readMainPath, writeMainPath);
+
     const readMainDTsPath = path.join(TRANSPILED_DIR, 'index.d.ts');
     const writeMainDTsPath = path.join(DST_DIR, 'index.d.ts');
-
     fs.copySync(readMainDTsPath, writeMainDTsPath);
   }
 
@@ -115,38 +124,9 @@ if (success) {
     })
   }
 
-  function createIndexJs() {
-    // create an empty index.js file so node resolve works
-    const writeMainJsPath = path.join(DST_DIR, 'index.js');
-    fs.writeFileSync(writeMainJsPath, '// @stencil/core');
-  }
-
-
-  function buildLoader() {
-    const srcLoaderPath = path.join(TRANSPILED_DIR, 'client/loader.js');
-    const dstLoaderPath = path.join(DST_DIR, 'client/loader.js');
-
-    let content = fs.readFileSync(srcLoaderPath, 'utf-8');
-
-    content = content.replace(/export function /g, 'function ');
-
-    content = `(function(win, doc, namespace, fsNamespace, resourcesUrl, appCore, appCoreSsr, appCorePolyfilled, hydratedCssClass, components) {
-
-    ${content}
-
-    init(win, doc, namespace, fsNamespace, resourcesUrl, appCore, appCoreSsr, appCorePolyfilled, hydratedCssClass, components);
-
-    })(window, document, '__APP__');`;
-
-    fs.writeFileSync(dstLoaderPath, content);
-
-    console.log(`✅ loader: ${dstLoaderPath}`);
-  }
-
-
   process.on('exit', (code) => {
-    fs.removeSync(TRANSPILED_DIR);
-    console.log(`✅ core: ${outputFile}`);
+    // fs.removeSync(TRANSPILED_DIR);
+    console.log(`✅ core: ${outputCoreFile}`);
   });
 
 }

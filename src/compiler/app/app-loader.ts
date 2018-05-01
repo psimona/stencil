@@ -1,8 +1,9 @@
 import * as d from '../../declarations';
 import { APP_NAMESPACE_REGEX } from '../../util/constants';
 import { formatComponentLoaderRegistry } from '../../util/data-serialize';
-import { generatePreamble, minifyJs } from '../util';
+import { generatePreamble } from '../util';
 import { getLoaderFileName, getLoaderPath } from './app-file-naming';
+import { minifyJs } from '../minifier';
 
 
 export async function generateLoader(

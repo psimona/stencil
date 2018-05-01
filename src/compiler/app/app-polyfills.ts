@@ -4,7 +4,7 @@ import { Config } from '../../declarations';
 export async function getAppCorePolyfills(config: Config) {
   // first load up all of the polyfill content
   const readFilePromises = POLYFILLS.map(polyfillFile => {
-    const staticName = config.sys.path.join('polyfills', polyfillFile);
+    const staticName = config.sys.path.join('..', '..', 'polyfills', polyfillFile);
     return config.sys.getClientCoreFile({ staticName: staticName });
   });
 
@@ -21,7 +21,7 @@ export async function getAppCorePolyfills(config: Config) {
 // during the end user's app build they're read from /dist/client/polyfills/
 const POLYFILLS = [
   'template.js',
-  'document-register-element.js',
+  'custom-element.js',
   'array-find.js',
   'array-includes.js',
   'object-assign.js',

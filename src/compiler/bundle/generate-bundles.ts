@@ -2,7 +2,8 @@ import { BuildCtx, CompilerCtx, ComponentMeta, ComponentRegistry, Config, EntryB
 import { DEFAULT_STYLE_MODE } from '../../util/constants';
 import { getAppBuildDir, getBundleFilename } from '../app/app-file-naming';
 import { getStyleIdPlaceholder, getStylePlaceholder, replaceBundleIdPlaceholder } from '../../util/data-serialize';
-import { hasError, minifyJs, pathJoin } from '../util';
+import { hasError, pathJoin } from '../util';
+import { minifyJs } from '../minifier';
 import { transpileToEs5 } from '../transpile/core-build';
 
 

@@ -10,12 +10,15 @@ export async function transpileCoreBuild(compilerCtx: d.CompilerCtx, coreBuild: 
     diagnostics: null
   };
 
-  const cacheKey = compilerCtx.cache.createKey('transpileCoreBuild', coreBuild, input);
-  const cachedContent = await compilerCtx.cache.get(cacheKey);
-  if (cachedContent != null) {
-    results.code = cachedContent;
-    results.diagnostics = [];
-    return results;
+  let cacheKey: string;
+  if (compilerCtx) {
+    cacheKey = compilerCtx.cache.createKey('transpileCoreBuild', coreBuild, input);
+    const cachedContent = await compilerCtx.cache.get(cacheKey);
+    if (cachedContent != null) {
+      results.code = cachedContent;
+      results.diagnostics = [];
+      return results;
+    }
   }
 
   const diagnostics: d.Diagnostic[] = [];
@@ -41,7 +44,9 @@ export async function transpileCoreBuild(compilerCtx: d.CompilerCtx, coreBuild: 
 
   results.code = tsResults.outputText;
 
-  await compilerCtx.cache.put(cacheKey, results.code);
+  if (compilerCtx) {
+    await compilerCtx.cache.put(cacheKey, results.code);
+  }
 
   return results;
 }

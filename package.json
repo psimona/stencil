@@ -9,14 +9,15 @@
   },
   "files": [
     "bin/",
-    "dist/",
     "compiler/",
+    "dist/",
+    "polyfills/",
     "server/",
     "sys/",
     "testing/"
   ],
   "scripts": {
-    "build": "node scripts/build.js",
+    "build": "node scripts/build.js && node scripts/build-core.js",
     "build.cli": "node scripts/build-cli.js",
     "build.compiler": "node scripts/build-compiler.js",
     "build.core": "node scripts/build-core.js",

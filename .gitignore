@@ -19,6 +19,7 @@ node_modules/
 
 # submodule packages
 /compiler
+/polyfills
 /server
 /sys
 /testing

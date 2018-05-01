@@ -1,9 +1,10 @@
 import { AppRegistry, BuildCtx, CompilerCtx, Config, SourceTarget } from '../../declarations';
 import { buildExpressionReplacer } from '../build/replacer';
 import { createOnWarnFn, loadRollupDiagnostics } from '../../util/logger/logger-rollup';
-import { generatePreamble, minifyJs } from '../util';
+import { generatePreamble } from '../util';
 import { getGlobalBuildPath, getGlobalFileName } from './app-file-naming';
 import inMemoryFsRead from '../bundle/rollup-plugins/in-memory-fs-read';
+import { minifyJs } from '../minifier';
 import resolveCollections from '../bundle/rollup-plugins/resolve-collections';
 import { transpileToEs5 } from '../transpile/core-build';
 

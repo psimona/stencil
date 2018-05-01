@@ -96,9 +96,11 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
     domApi.$dispatchEvent(win, 'appload', { detail: { namespace: namespace } });
   };
 
-  // if the HTML was generated from SSR
-  // then let's walk the tree and generate vnodes out of the data
-  createVNodesFromSsr(plt, domApi, rootElm);
+  if (Build.asyncLoader) {
+    // if the HTML was generated from SSR
+    // then let's walk the tree and generate vnodes out of the data
+    createVNodesFromSsr(plt, domApi, rootElm);
+  }
 
 
   function defineComponent(cmpMeta: d.ComponentMeta, HostElementConstructor: any) {
@@ -130,8 +132,10 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
         HostElementConstructor.observedAttributes = observedAttributes;
       }
 
-      // define the custom element
-      win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
+      if (Build.asyncLoader) {
+        // define the custom element
+        win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
+      }
     }
   }
 
@@ -152,7 +156,7 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
       // we're already all loaded up :)
       queueUpdate(plt, elm);
 
-    } else {
+    } else if (Build.asyncLoader) {
       const bundleId = (typeof cmpMeta.bundleIds === 'string') ?
         cmpMeta.bundleIds :
         cmpMeta.bundleIds[elm.mode];
@@ -193,11 +197,13 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
     generateDevInspector(App, namespace, window, plt);
   }
 
-  // register all the components now that everything's ready
-  // standard es2017 class extends HTMLElement
-  (App.components || [])
-    .map(data => parseComponentLoader(data, cmpRegistry))
-    .forEach(cmpMeta => plt.defineComponent(cmpMeta, class extends HTMLElement {}));
+  if (Build.asyncLoader) {
+    // register all the components now that everything's ready
+    // standard es2017 class extends HTMLElement
+    (App.components || [])
+      .map(data => parseComponentLoader(data, cmpRegistry))
+      .forEach(cmpMeta => plt.defineComponent(cmpMeta, class extends HTMLElement {}));
+  }
 
   // create the componentOnReady fn
   initCoreComponentOnReady(plt, App);
@@ -205,6 +211,8 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
   // notify that the app has initialized and the core script is ready
   // but note that the components have not fully loaded yet
   App.initialized = true;
+
+  return plt;
 }
 
 

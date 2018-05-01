@@ -1,0 +1,5 @@
+{
+  "name": "@stencil/core/polyfills",
+  "private": true,
+  "main": "./index.js"
+}
