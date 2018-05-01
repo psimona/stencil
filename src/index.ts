@@ -72,6 +72,7 @@ export interface HostElement extends HTMLElement {}
 
 
 export {
+  ensureFeatures,
   h,
   StencilElement
 } from './client/mixins/stencil-element';

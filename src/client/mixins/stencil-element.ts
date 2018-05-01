@@ -33,3 +33,28 @@ export function StencilElement(superClass?: d.StencilElementSuperClass, opts: d.
 
   return RendererMixin as any;
 }
+
+
+export function ensureFeatures(window: Window, cb?: () => void) {
+  let promise: Promise<Window>;
+
+  if (!cb) {
+    promise = new Promise(resolve => {
+      cb = resolve;
+    });
+  }
+
+  if (window.customElements && window.customElements.define) {
+    cb();
+
+  } else {
+    __import('../../../polyfills/custom-element.js').then(() => {
+      cb();
+    });
+  }
+
+  return promise;
+}
+
+
+declare const __import: Function;

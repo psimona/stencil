@@ -30,6 +30,7 @@ function buildMixins(inputMixinFile, outputMixinFile) {
     }).then(clientCore => {
 
       let code = clientCore.code.trim();
+      code = dynamicImportFnHack(code);
 
       minifyCoreBuild(code, stencilElementBuild, minifyOpts).then(results => {
         code = results.output;
@@ -55,6 +56,12 @@ function buildMixins(inputMixinFile, outputMixinFile) {
     console.log(err.stack);
     process.exit(1);
   });
+}
+
+function dynamicImportFnHack(input) {
+  // typescript is all tripped all by import()
+  // nothing a good ol' string replace can't fix ;)
+  return input.replace(/ __import\(/g, ' import(');
 }
 
 module.exports = buildMixins;
