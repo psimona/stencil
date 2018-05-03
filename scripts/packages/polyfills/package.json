@@ -1,5 +1,6 @@
 {
   "name": "@stencil/core/polyfills",
   "private": true,
-  "main": "./index.js"
+  "main": "./index.js",
+  "module": "./index.esm.js"
 }

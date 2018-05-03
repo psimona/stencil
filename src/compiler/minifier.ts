@@ -1,40 +1,5 @@
 import * as d from '../declarations';
 import { generatePreamble } from './util';
-import { transpileCoreBuild } from './transpile/core-build';
-import { minifyCore } from '../compiler/app/build-core-content';
-
-
-/**
- * Same minifier which the stencil core build uses. This
- * minifier does some heavy property renaming and has
- * specific settings for ES5 and ESM.
- */
-export async function minifyCoreBuild(jsText: string, coreBuild: d.BuildConditionals, opts: MinifyBuildOptions = {}) {
-  const nodeSys = require('../sys/node/index.js');
-
-  const config: d.Config = {
-    logLevel: opts.debug ? 'debug' : 'info',
-    minifyJs: true,
-    sys: new nodeSys.NodeSystem()
-  };
-
-  const transpileResults = await transpileCoreBuild(null, coreBuild, jsText);
-
-  if (transpileResults.diagnostics && transpileResults.diagnostics.length) {
-    console.error(transpileResults.diagnostics);
-    return null;
-  }
-
-  jsText = transpileResults.code;
-
-  return minifyCore(config, null, opts.sourceTarget as any, jsText);
-}
-
-
-export interface MinifyBuildOptions {
-  debug?: boolean;
-  sourceTarget?: 'esm' | 'es5';
-}
 
 
 /**

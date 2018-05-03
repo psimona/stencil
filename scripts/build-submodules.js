@@ -18,7 +18,6 @@ function createSubmodule(submoduleName) {
   const srcPackagesDir = path.join(SRC_PACKAGES_DIR, submoduleName);
   const submoduleDir = path.join(ROOT_DIR, submoduleName);
 
-  fs.emptyDirSync(submoduleDir);
   fs.copySync(srcPackagesDir, submoduleDir)
 }
 

@@ -14,7 +14,7 @@ log.txt
 .versions/
 node_modules/
 
-**/dist/
+/dist/
 **/www/build/
 
 # submodule packages

@@ -20,7 +20,7 @@ export async function setBuildConditionals(
 
   // figure out which sections of the core code this build doesn't even need
   const coreBuild: d.BuildConditionals = ({} as any);
-  coreBuild.asyncLoader = true;
+  coreBuild.browserModuleLoader = true;
   coreBuild.coreId = coreId;
   coreBuild.clientSide = true;
   coreBuild.isDev = !!config.devMode;

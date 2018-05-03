@@ -12,6 +12,7 @@ export const RESERVED_PROPERTIES: string[] = [
   'enableListener',
   'eventNameFn',
   'h',
+  'hydratedCssClass',
   'initialized',
   'isClient',
   'isPrerender',
@@ -59,6 +60,7 @@ export const RESERVED_PROPERTIES: string[] = [
   'elementRef',
   'encapsulation',
   'events',
+  'getModule',
   'host',
   'is',
   'listeners',
@@ -66,6 +68,7 @@ export const RESERVED_PROPERTIES: string[] = [
   'mutable',
   'passive',
   'properties',
+  'scoped',
   'state',
   'style',
   'styleMode',
@@ -191,5 +194,6 @@ export const RESERVED_PROPERTIES: string[] = [
   'timeRemaining',
   'warn',
   'webkitMatchesSelector',
-  'window'
+  'window',
+  'HTMLElement'
 ];

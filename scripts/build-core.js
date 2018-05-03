@@ -3,7 +3,7 @@ const path = require('path');
 const rollup = require('rollup');
 const transpile = require('./transpile');
 const buildLoader = require('./build-loader');
-const buildMixins = require('./build-mixins');
+const buildCustomElementsDefine = require('./build-ce-define');
 
 
 const ROOT_DIR = path.join(__dirname, '..');
@@ -14,14 +14,14 @@ const DIST_CLIENT_DIR = path.join(DST_DIR, 'client');
 const DECLARATIONS_SRC_DIR = path.join(ROOT_DIR, 'scripts', 'declarations');
 const DECLARATIONS_DIST_DIR = path.join(DST_DIR, 'client', 'declarations');
 
-const inputCoreFile = path.join(TRANSPILED_DIR, 'client', 'core.js');
+const inputCoreFile = path.join(TRANSPILED_DIR, 'client', 'browser', 'core.js');
 const outputCoreFile = path.join(DIST_CLIENT_DIR, 'core.build.js');
 
-const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'loader.js');
+const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'browser', 'loader.js');
 const outputLoaderFile = path.join(DST_DIR, 'client', 'loader.js');
 
-const inputMixinFile = path.join(TRANSPILED_DIR, 'client', 'mixins', 'stencil-element.js');
-const outputMixinFile = path.join(DIST_CLIENT_DIR, 'mixins', 'stencil-element.js');
+const inputCeDefineFile = path.join(TRANSPILED_DIR, 'client', 'esm', 'custom-elements-define.js');
+const outputCeDefineFile = path.join(DIST_CLIENT_DIR, 'custom-elements-define.js');
 
 
 const success = transpile('../src/tsconfig.json');
@@ -30,13 +30,13 @@ if (success) {
 
   // empty out the dist/client directory
   fs.ensureDirSync(path.dirname(outputCoreFile));
-  fs.ensureDirSync(path.dirname(outputMixinFile));
+  fs.ensureDirSync(path.dirname(outputCeDefineFile));
 
 
   // tasks
   bundleClientCore();
   buildLoader(inputLoaderFile, outputLoaderFile);
-  buildMixins(inputMixinFile, outputMixinFile);
+  buildCustomElementsDefine(inputCeDefineFile, outputCeDefineFile);
   copyMain();
   copyClientFiles();
   copyUtilDir();
@@ -91,9 +91,9 @@ if (success) {
 
 
   function copyMain() {
-    const readMainPath = path.join(TRANSPILED_DIR, 'index.js');
-    const writeMainPath = path.join(DST_DIR, 'index.js');
-    fs.copySync(readMainPath, writeMainPath);
+    // create an empty index.js file so node resolve works
+    const writeMainJsPath = path.join(DST_DIR, 'index.js');
+    fs.writeFileSync(writeMainJsPath, '// @stencil/core');
 
     const readMainDTsPath = path.join(TRANSPILED_DIR, 'index.d.ts');
     const writeMainDTsPath = path.join(DST_DIR, 'index.d.ts');
@@ -125,7 +125,7 @@ if (success) {
   }
 
   process.on('exit', (code) => {
-    // fs.removeSync(TRANSPILED_DIR);
+    fs.removeSync(TRANSPILED_DIR);
     console.log(`✅ core: ${outputCoreFile}`);
   });
 

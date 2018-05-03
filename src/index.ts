@@ -69,10 +69,3 @@ export declare const PropWillChange: d.WatchDecorator;
 export declare const PropDidChange: d.WatchDecorator;
 
 export interface HostElement extends HTMLElement {}
-
-
-export {
-  ensureFeatures,
-  h,
-  StencilElement
-} from './client/mixins/stencil-element';

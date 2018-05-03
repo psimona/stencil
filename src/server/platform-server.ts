@@ -198,6 +198,10 @@ export function createPlatformServer(
 
               if (!cmpMeta.componentConstructor) {
                 fillCmpMetaFromConstructor(componentConstructor, cmpMeta);
+
+                if (!cmpMeta.componentConstructor) {
+                  cmpMeta.componentConstructor = componentConstructor;
+                }
               }
 
               if (componentConstructor.style) {

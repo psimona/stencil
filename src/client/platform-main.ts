@@ -5,6 +5,7 @@ import { createDomApi } from '../renderer/dom-api';
 import { createRendererPatch } from '../renderer/vdom/patch';
 import { createVNodesFromSsr } from '../renderer/vdom/ssr';
 import { createQueueClient } from './queue-client';
+import { CustomStyle } from './polyfills/css-shim/custom-style';
 import { dashToPascalCase } from '../util/helpers';
 import { enableEventListener } from '../core/listeners';
 import { generateDevInspector } from './dev-inspector';
@@ -19,7 +20,7 @@ import { queueUpdate } from '../core/update';
 import { useScopedCss } from '../renderer/vdom/encapsulation';
 
 
-export function createPlatformMain(namespace: string, Context: d.CoreContext, win: Window, doc: Document, resourcesUrl: string, hydratedCssClass: string) {
+export function createPlatformMain(namespace: string, Context: d.CoreContext, win: Window, doc: Document, resourcesUrl: string, hydratedCssClass: string, customStyle?: CustomStyle) {
   const cmpRegistry: d.ComponentRegistry = { 'html': {} };
   const controllerComponents: {[tag: string]: d.HostElement} = {};
   const App: d.AppGlobal = (win as any)[namespace] = (win as any)[namespace] || {};
@@ -96,12 +97,15 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
     domApi.$dispatchEvent(win, 'appload', { detail: { namespace: namespace } });
   };
 
-  if (Build.asyncLoader) {
+  if (Build.browserModuleLoader) {
     // if the HTML was generated from SSR
     // then let's walk the tree and generate vnodes out of the data
     createVNodesFromSsr(plt, domApi, rootElm);
   }
 
+  if (Build.cssVarShim && customStyle) {
+    customStyle.init();
+  }
 
   function defineComponent(cmpMeta: d.ComponentMeta, HostElementConstructor: any) {
 
@@ -109,12 +113,13 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
       // keep a map of all the defined components
       globalDefined[cmpMeta.tagNameMeta] = true;
 
+      // define the custom element
       // initialize the members on the host element prototype
       initHostElement(plt, cmpMeta, HostElementConstructor.prototype, hydratedCssClass);
 
       if (Build.observeAttr) {
         // add which attributes should be observed
-        const observedAttributes: string[] = [];
+        const observedAttributes: string[] = HostElementConstructor.observedAttributes = [];
 
         // at this point the membersMeta only includes attributes which should
         // be observed, it does not include all props yet, so it's safe to
@@ -127,15 +132,9 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
             );
           }
         }
-        // set the array of all the attributes to keep an eye on
-        // https://www.youtube.com/watch?v=RBs21CFBALI
-        HostElementConstructor.observedAttributes = observedAttributes;
       }
 
-      if (Build.asyncLoader) {
-        // define the custom element
-        win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
-      }
+      win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
     }
   }
 
@@ -156,10 +155,51 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
       // we're already all loaded up :)
       queueUpdate(plt, elm);
 
-    } else if (Build.asyncLoader) {
+
+    } else if (Build.externalModuleLoader) {
+      // using a 3rd party bundler to import modules
+      // at this point the cmpMeta will already have a
+      // static getModule() which has a callback with the module
+      const moduleOpts: d.GetModuleOptions = {
+        mode: elm.mode,
+        scoped: useScopedCss(domApi.$supportsShadowDom, cmpMeta)
+      };
+
+      cmpMeta.getModule(cmpConstructor => {
+        // async loading of the module is done
+        try {
+          // get the component constructor from the module
+          // initialize this component constructor's styles
+          // it is possible for the same component to have difficult styles applied in the same app
+          initStyleTemplate(
+            domApi,
+            cmpMeta,
+            (cmpMeta.componentConstructor = cmpConstructor)
+          );
+
+        } catch (e) {
+          // oh man, something's up
+          console.error(e);
+
+          // provide a bogus component constructor
+          // so the rest of the app acts as normal
+          cmpMeta.componentConstructor = class {} as any;
+        }
+
+        // bundle all loaded up, let's continue
+        queueUpdate(plt, elm);
+
+      }, moduleOpts);
+
+
+    } else if (Build.browserModuleLoader) {
+      // self loading module using built-in browser's import()
+      // this is when not using a 3rd party bundler
+      // and components are able to lazy load themselves
+      // through standardized browser APIs
       const bundleId = (typeof cmpMeta.bundleIds === 'string') ?
-        cmpMeta.bundleIds :
-        cmpMeta.bundleIds[elm.mode];
+      cmpMeta.bundleIds :
+      cmpMeta.bundleIds[elm.mode];
       const url = resourcesUrl + bundleId + ((useScopedCss(domApi.$supportsShadowDom, cmpMeta) ? '.sc' : '') + '.js');
 
       // dynamic es module import() => woot!
@@ -167,11 +207,13 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
         // async loading of the module is done
         try {
           // get the component constructor from the module
-          cmpMeta.componentConstructor = importedModule[dashToPascalCase(cmpMeta.tagNameMeta)];
-
           // initialize this component constructor's styles
           // it is possible for the same component to have difficult styles applied in the same app
-          initStyleTemplate(domApi, cmpMeta, cmpMeta.componentConstructor);
+          initStyleTemplate(
+            domApi,
+            cmpMeta,
+            (cmpMeta.componentConstructor = importedModule[dashToPascalCase(cmpMeta.tagNameMeta)])
+          );
 
         } catch (e) {
           // oh man, something's up
@@ -190,19 +232,21 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
   }
 
   if (Build.styles) {
-    plt.attachStyles = attachStyles;
+    plt.attachStyles = (plt, domApi, cmpMeta, modeName, elm) => {
+      attachStyles(plt, domApi, cmpMeta, modeName, elm, customStyle);
+    };
   }
 
   if (Build.devInspector) {
     generateDevInspector(App, namespace, window, plt);
   }
 
-  if (Build.asyncLoader) {
+  if (Build.browserModuleLoader) {
     // register all the components now that everything's ready
     // standard es2017 class extends HTMLElement
     (App.components || [])
       .map(data => parseComponentLoader(data, cmpRegistry))
-      .forEach(cmpMeta => plt.defineComponent(cmpMeta, class extends HTMLElement {}));
+      .forEach(cmpMeta => defineComponent(cmpMeta, class extends HTMLElement {}));
   }
 
   // create the componentOnReady fn

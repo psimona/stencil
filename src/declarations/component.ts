@@ -46,6 +46,7 @@ export interface ComponentConstructor {
   style?: string;
   styleMode?: string;
   encapsulation?: Encapsulation;
+  getModule?: (cb: (cmpConstructor: ComponentConstructor) => void, opts?: GetModuleOptions) => void;
 }
 
 
@@ -70,6 +71,13 @@ export interface ComponentMeta {
   componentClass?: string;
   dependencies?: ComponentDependencies;
   jsdoc?: JSDoc;
+  getModule?: (cb: (cmpConstructor: ComponentConstructor) => void, opts?: GetModuleOptions) => void;
+}
+
+
+export interface GetModuleOptions {
+  scoped?: boolean;
+  mode?: string;
 }
 
 

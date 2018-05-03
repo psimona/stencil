@@ -1,6 +1,6 @@
 import { init } from '../loader';
-import { LoadComponentRegistry } from '../../declarations';
-import { mockWindow } from '../../testing/mocks';
+import { LoadComponentRegistry } from '../../../declarations';
+import { mockWindow } from '../../../testing/mocks';
 
 
 describe('loader', () => {
