@@ -1,12 +1,9 @@
 import * as d from '../../declarations';
 import { generatePreamble, normalizePath, pathJoin } from '../util';
-import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getPolyfillsEsmBuildPath } from '../app/app-file-naming';
+import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistIndexCjsPath, getDistIndexEsmPath, getPolyfillsEsmBuildPath } from '../app/app-file-naming';
 
 
 export async function generateDistModuleIndex(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist) {
-  const distIndexCjsPath = pathJoin(config, outputTarget.dir, 'index.js');
-  const distIndexEsmPath = pathJoin(config, outputTarget.dir, 'index.esm.js');
-
   const cjs: string[] = [
     generatePreamble(config, `CommonJS Main`)
   ];
@@ -23,6 +20,9 @@ export async function generateDistModuleIndex(config: d.Config, compilerCtx: d.C
     addExport(config, compilerCtx, outputTarget, esm, componentsEsm),
     addExport(config, compilerCtx, outputTarget, esm, coreEsm)
   ]);
+
+  const distIndexCjsPath = getDistIndexCjsPath(config, outputTarget);
+  const distIndexEsmPath = getDistIndexEsmPath(config, outputTarget);
 
   await Promise.all([
     compilerCtx.fs.writeFile(distIndexCjsPath, cjs.join('\n')),

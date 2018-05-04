@@ -59,6 +59,16 @@ export function getCoreFilename(config: d.Config, coreId: string, jsContent: str
 }
 
 
+export function getDistIndexCjsPath(config: d.Config, outputTarget: d.OutputTargetDist) {
+  return pathJoin(config, outputTarget.dir, 'index.js');
+}
+
+
+export function getDistIndexEsmPath(config: d.Config, outputTarget: d.OutputTargetDist) {
+  return pathJoin(config, outputTarget.dir, 'index.esm.js');
+}
+
+
 export function getCoreEsmFileName(config: d.Config) {
   return `${config.fsNamespace}.esm.js`;
 }
@@ -69,12 +79,12 @@ export function getCoreEsmBuildPath(config: d.Config, outputTarget: d.OutputTarg
 }
 
 
-export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
   return pathJoin(config, getAppBuildDir(config, outputTarget), `components.esm.js`);
 }
 
 
-export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
   return pathJoin(config, getAppBuildDir(config, outputTarget), `polyfills.esm.js`);
 }
 
