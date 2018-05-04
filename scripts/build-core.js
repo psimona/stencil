@@ -3,7 +3,8 @@ const path = require('path');
 const rollup = require('rollup');
 const transpile = require('./transpile');
 const buildLoader = require('./build-loader');
-const buildCustomElementsDefine = require('./build-ce-define');
+const buildCoreEsm = require('./build-core-esm');
+const buildPolyfills = require('./build-polyfills');
 
 
 const ROOT_DIR = path.join(__dirname, '..');
@@ -20,8 +21,9 @@ const outputCoreFile = path.join(DIST_CLIENT_DIR, 'core.build.js');
 const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'browser', 'loader.js');
 const outputLoaderFile = path.join(DST_DIR, 'client', 'loader.js');
 
-const inputCeDefineFile = path.join(TRANSPILED_DIR, 'client', 'esm', 'custom-elements-define.js');
-const outputCeDefineFile = path.join(DIST_CLIENT_DIR, 'custom-elements-define.js');
+const inputCoreEsmFile = path.join(TRANSPILED_DIR, 'client', 'esm', 'core.js');
+const outputCoreEsmFile = path.join(DIST_CLIENT_DIR, 'core.esm.js');
+const outputPolyfillsEsmFile = path.join(DIST_CLIENT_DIR, 'polyfills.esm.js');
 
 
 const success = transpile('../src/tsconfig.json');
@@ -30,16 +32,17 @@ if (success) {
 
   // empty out the dist/client directory
   fs.ensureDirSync(path.dirname(outputCoreFile));
-  fs.ensureDirSync(path.dirname(outputCeDefineFile));
+  fs.ensureDirSync(path.dirname(outputCoreEsmFile));
 
 
   // tasks
   bundleClientCore();
   buildLoader(inputLoaderFile, outputLoaderFile);
-  buildCustomElementsDefine(inputCeDefineFile, outputCeDefineFile);
+  buildCoreEsm(inputCoreEsmFile, outputCoreEsmFile);
   copyMain();
   copyClientFiles();
   copyUtilDir();
+  buildPolyfills(outputPolyfillsEsmFile);
 
 
   function bundleClientCore() {

@@ -2,7 +2,7 @@ import * as d from '../../declarations';
 import { angularDirectiveProxyOutputs } from '../output-targets/angular';
 import { captializeFirstLetter, dashToPascalCase } from '../../util/helpers';
 import { gatherMetadata } from './datacollection/index';
-import { getComponentsDtsTypesFilePath } from '../collections/distribution';
+import { getComponentsDtsTypesFilePath } from '../distribution/distribution';
 import { MEMBER_TYPE } from '../../util/constants';
 import { normalizeAssetsDir } from '../component-plugins/assets-plugin';
 import { normalizePath } from '../util';

@@ -20,7 +20,6 @@ export async function getAppCorePolyfills(config: Config) {
 // actual source of the polyfills are found in /scripts/polyfills/
 // during the end user's app build they're read from /dist/client/polyfills/
 const POLYFILLS = [
-  'template.js',
   'custom-element.js',
   'array-find.js',
   'array-includes.js',

@@ -9,7 +9,6 @@ const DST_CJS_INDEX_FILE = path.join(DST_DIR, 'index.js');
 
 
 const POLYFILLS = [
-  // 'template.js',
   'custom-element.js',
   'array-find.js',
   'array-includes.js',
@@ -17,7 +16,6 @@ const POLYFILLS = [
   'string-startswith.js',
   'string-endswith.js',
   'promise.js',
-  // 'fetch.js',
   'request-animation-frame.js',
   'closest.js',
   'performance-now.js',
@@ -26,8 +24,8 @@ const POLYFILLS = [
 ];
 
 
-function buildPolyfills() {
-  fs.emptyDirSync(DST_DIR);
+module.exports = function buildPolyfills(outputPolyfillsEsmFile) {
+  copyPolyfills();
 
   const polyfills = POLYFILLS.map(fileName => {
     const srcFilePath = path.join(SRC_DIR, fileName);
@@ -47,16 +45,29 @@ function buildPolyfills() {
   ];
 
   fs.writeFileSync(DST_ESM_INDEX_FILE, indexEsm.join('\n'));
+  fs.writeFileSync(outputPolyfillsEsmFile, indexEsm.join('\n'));
 
   const indexCjs = [
-    'exports.applyPolyfills = function(window) {',
+    '"use strict";',
+    'module.exports = function(window) {',
     'var document = window.document',
     polyfills,
     '};'
   ];
 
   fs.writeFileSync(DST_CJS_INDEX_FILE, indexCjs.join('\n'));
+};
+
+
+function copyPolyfills() {
+  fs.emptyDirSync(DST_DIR);
+
+  const files = fs.readdirSync(SRC_DIR).filter(f => f.endsWith('.js'));
+
+  files.forEach(fileName => {
+    const srcFilePath = path.join(SRC_DIR, fileName);
+    const dstFilePath = path.join(DST_DIR, fileName);
+
+    fs.copySync(srcFilePath, dstFilePath);
+  });
 }
-
-
-buildPolyfills();

@@ -70,11 +70,17 @@ export function isWebDevFile(filePath: string) {
 const WEB_DEV_EXT = ['js', 'jsx', 'html', 'htm', 'css', 'scss', 'sass', 'less', 'styl', 'pcss'];
 
 
-export function generatePreamble(config: d.Config) {
+export function generatePreamble(config: d.Config, content?: string) {
   let preamble: string[] = [];
 
   if (config.preamble) {
     preamble = config.preamble.split('\n');
+  }
+
+  if (content) {
+    content.split('\n').forEach(c => {
+      preamble.push(c);
+    });
   }
 
   preamble.push(BANNER);

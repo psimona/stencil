@@ -32,7 +32,17 @@ export function getGlobalFileName(config: d.Config) {
 }
 
 
-export function getGlobalBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+export function getGlobalEsmFileName(config: d.Config) {
+  return `${config.fsNamespace}.global.esm.js`;
+}
+
+
+export function getGlobalEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+  return pathJoin(config, getAppBuildDir(config, outputTarget), getGlobalEsmFileName(config));
+}
+
+
+export function getGlobalJsBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
   return pathJoin(config, getAppBuildDir(config, outputTarget), getGlobalFileName(config));
 }
 
@@ -46,6 +56,26 @@ export function getCoreFilename(config: d.Config, coreId: string, jsContent: str
 
   // dev file name
   return `${config.fsNamespace}.${coreId}.js`;
+}
+
+
+export function getCoreEsmFileName(config: d.Config) {
+  return `${config.fsNamespace}.esm.js`;
+}
+
+
+export function getCoreEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+  return pathJoin(config, getAppBuildDir(config, outputTarget), getCoreEsmFileName(config));
+}
+
+
+export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+  return pathJoin(config, getAppBuildDir(config, outputTarget), `components.esm.js`);
+}
+
+
+export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
+  return pathJoin(config, getAppBuildDir(config, outputTarget), `polyfills.esm.js`);
 }
 
 

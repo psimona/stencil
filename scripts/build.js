@@ -12,7 +12,6 @@ fs.removeSync(DIST_DIR);
   'build-cli.js',
   'build-compiler.js',
   'build-core.js',
-  'build-polyfills.js',
   'build-renderer-vdom.js',
   'build-server.js',
   'build-submodules.js',

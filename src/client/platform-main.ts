@@ -165,7 +165,7 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
         scoped: useScopedCss(domApi.$supportsShadowDom, cmpMeta)
       };
 
-      cmpMeta.getModule(cmpConstructor => {
+      cmpMeta.getModule(moduleOpts).then(cmpConstructor => {
         // async loading of the module is done
         try {
           // get the component constructor from the module
@@ -189,7 +189,7 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
         // bundle all loaded up, let's continue
         queueUpdate(plt, elm);
 
-      }, moduleOpts);
+      });
 
 
     } else if (Build.browserModuleLoader) {

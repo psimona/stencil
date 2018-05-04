@@ -4,7 +4,7 @@ const rollup = require('rollup');
 const ts = require('typescript');
 
 
-function buildCustomElementsDefine(inputFile, outputFile) {
+function buildCoreEsm(inputFile, outputFile) {
   return rollup.rollup({
     input: inputFile,
     onwarn: (message) => {
@@ -47,4 +47,4 @@ function dynamicImportFnHack(input) {
   return input.replace(/ __import\(/g, ' import(');
 }
 
-module.exports = buildCustomElementsDefine;
+module.exports = buildCoreEsm;

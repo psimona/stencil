@@ -2,7 +2,7 @@ import { AppRegistry, BuildCtx, CompilerCtx, Config, SourceTarget } from '../../
 import { buildExpressionReplacer } from '../build/replacer';
 import { createOnWarnFn, loadRollupDiagnostics } from '../../util/logger/logger-rollup';
 import { generatePreamble } from '../util';
-import { getGlobalBuildPath, getGlobalFileName } from './app-file-naming';
+import { getGlobalEsmBuildPath, getGlobalFileName, getGlobalJsBuildPath } from './app-file-naming';
 import inMemoryFsRead from '../bundle/rollup-plugins/in-memory-fs-read';
 import { minifyJs } from '../minifier';
 import resolveCollections from '../bundle/rollup-plugins/resolve-collections';
@@ -16,6 +16,7 @@ export async function generateAppGlobalScript(config: Config, compilerCtx: Compi
     appRegistry.global = getGlobalFileName(config);
 
     const globalJsContent = generateGlobalJs(config, globalJsContents);
+    const globalEsmContent = generateGlobalEsm(config, globalJsContents);
 
     compilerCtx.appFiles.global = globalJsContent;
 
@@ -23,12 +24,17 @@ export async function generateAppGlobalScript(config: Config, compilerCtx: Compi
       return outputTarget.appBuild;
     });
 
-    await Promise.all(outputTargets.map(outputTarget => {
-      const appGlobalWWWFilePath = getGlobalBuildPath(config, outputTarget);
+    const promises: Promise<any>[] = [];
 
-      config.logger.debug(`build, app global www: ${appGlobalWWWFilePath}`);
-      return compilerCtx.fs.writeFile(appGlobalWWWFilePath, globalJsContent);
-    }));
+    outputTargets.forEach(outputTarget => {
+      let appGlobalFilePath = getGlobalJsBuildPath(config, outputTarget);
+      promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalJsContent));
+
+      appGlobalFilePath = getGlobalEsmBuildPath(config, outputTarget);
+      promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalEsmContent));
+    });
+
+    await Promise.all(promises);
   }
 
   return globalJsContents.join('\n').trim();
@@ -169,6 +175,18 @@ export function generateGlobalJs(config: Config, globalJsContents: string[]) {
     `"use strict";\n`,
     globalJsContents.join('\n').trim(),
     `\n})("${config.namespace}");`
+  ].join('');
+
+  return output;
+}
+
+
+export function generateGlobalEsm(config: Config, globalJsContents: string[]) {
+  const output = [
+    generatePreamble(config) + '\n',
+    `export default function appGlobal(namespace, Context, window, document, resourcesUrl, hydratedCssClass) {`,
+    globalJsContents.join('\n').trim(),
+    `\n}`
   ].join('');
 
   return output;

@@ -1,58 +1,8 @@
 import * as d from '../../declarations';
-import { buildError, buildWarn, hasError, normalizePath, pathJoin } from '../util';
+import { buildError, buildWarn, normalizePath, pathJoin } from '../util';
 import { COLLECTION_MANIFEST_FILE_NAME } from '../../util/constants';
-import { copyComponentStyles } from '../copy/copy-styles';
-import { generateTypes } from './collection-types';
+import { COMPONENTS_DTS } from './distribution';
 import { getLoaderFileName } from '../app/app-file-naming';
-
-
-
-export async function generateDistributions(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx): Promise<any> {
-  const distOutputs = config.outputTargets.filter(o => o.type === 'dist');
-
-  return Promise.all(distOutputs.map(outputTarget => {
-    return generateDistribution(config, compilerCtx, buildCtx, outputTarget);
-  }));
-}
-
-
-async function generateDistribution(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, outputTarget: d.OutputTargetDist): Promise<any> {
-  const pkgData = await readPackageJson(config, compilerCtx);
-
-  validatePackageJson(config, outputTarget, buildCtx.diagnostics, pkgData);
-
-  if (hasError(buildCtx.diagnostics)) {
-    return;
-  }
-
-  await Promise.all([
-    copyComponentStyles(config, compilerCtx, buildCtx),
-    generateTypes(config, compilerCtx, buildCtx, pkgData)
-  ]);
-}
-
-
-async function readPackageJson(config: d.Config, compilerCtx: d.CompilerCtx) {
-  const pkgJsonPath = config.sys.path.join(config.rootDir, 'package.json');
-
-  let pkgJson: string;
-  try {
-    pkgJson = await compilerCtx.fs.readFile(pkgJsonPath);
-
-  } catch (e) {
-    throw new Error(`Missing "package.json" file for distribution: ${pkgJsonPath}`);
-  }
-
-  let pkgData: d.PackageJsonData;
-  try {
-    pkgData = JSON.parse(pkgJson);
-
-  } catch (e) {
-    throw new Error(`Error parsing package.json: ${pkgJsonPath}, ${e}`);
-  }
-
-  return pkgData;
-}
 
 
 export function validatePackageJson(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
@@ -118,15 +68,3 @@ export function validatePackageFiles(config: d.Config, outputTarget: d.OutputTar
   }
 }
 
-
-export function getComponentsDtsSrcFilePath(config: d.Config) {
-  return pathJoin(config, config.srcDir, COMPONENTS_DTS);
-}
-
-
-export function getComponentsDtsTypesFilePath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, outputTarget.typesDir, COMPONENTS_DTS);
-}
-
-
-export const COMPONENTS_DTS = 'components.d.ts';
