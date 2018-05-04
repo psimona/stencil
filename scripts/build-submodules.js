@@ -1,8 +1,8 @@
 const fs = require('fs-extra');
 const path = require('path');
 
-const SRC_PACKAGES_DIR = path.join(__dirname, './packages');
-const ROOT_DIR = path.join(__dirname, '../');
+const SRC_PACKAGES_DIR = path.join(__dirname, 'packages');
+const ROOT_DIR = path.join(__dirname, '..');
 
 // create the submodule files so paths like @stencil/core/server work
 // these files are gitignored already
