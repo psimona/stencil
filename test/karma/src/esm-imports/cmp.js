@@ -1,5 +1,3 @@
-import { customElementsDefine, IonButton } from '@ionic/core';
-import { MyCmp } from '@asdfasdf';
 
 
 export class MyStencilElement {

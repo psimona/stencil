@@ -3,7 +3,7 @@ import { copyComponentStyles } from '../copy/copy-styles';
 import { generateDistModuleIndex } from './dist-module-index';
 import { generateTypes } from '../collections/collection-types';
 import { hasError, pathJoin } from '../util';
-import { validatePackageJson } from './validate-package-json';
+import * as v from './validate-package-json';
 
 
 export async function generateDistributions(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx): Promise<any> {
@@ -16,19 +16,24 @@ export async function generateDistributions(config: d.Config, compilerCtx: d.Com
 
 
 async function generateDistribution(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, outputTarget: d.OutputTargetDist): Promise<any> {
+  const pkgData = await readPackageJson(config, compilerCtx);
+
+  v.validatePackageFiles(config, outputTarget, buildCtx.diagnostics, pkgData);
+  v.validateCollection(config, outputTarget, buildCtx.diagnostics, pkgData);
+  v.validateNamespace(config, buildCtx.diagnostics);
+
   if (hasError(buildCtx.diagnostics)) {
     return;
   }
 
-  const pkgData = await readPackageJson(config, compilerCtx);
-
   await Promise.all([
     generateDistModuleIndex(config, compilerCtx, outputTarget),
     copyComponentStyles(config, compilerCtx, buildCtx),
-    generateTypes(config, compilerCtx, buildCtx, pkgData)
+    generateTypes(config, compilerCtx, outputTarget, buildCtx, pkgData)
   ]);
 
-  await validatePackageJson(config, compilerCtx, outputTarget, buildCtx.diagnostics, pkgData);
+  await v.validateModule(config, compilerCtx, outputTarget, buildCtx.diagnostics, pkgData);
+  await v.validateMain(config, compilerCtx, outputTarget, buildCtx.diagnostics, pkgData);
 }
 
 

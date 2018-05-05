@@ -10,14 +10,18 @@ import { generateLoader } from './app-loader';
 import { setBuildConditionals } from './build-conditionals';
 
 
-export function generateAppFiles(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, entryModules: d.EntryModule[], cmpRegistry: d.ComponentRegistry) {
+export async function generateAppFiles(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, entryModules: d.EntryModule[], cmpRegistry: d.ComponentRegistry) {
   const outputTargets = config.outputTargets.filter(outputTarget => {
     return outputTarget.appBuild;
   });
 
-  return Promise.all(outputTargets.map(outputTarget => {
+  const timespan = config.logger.createTimeSpan(`generate app files started`);
+
+  await Promise.all(outputTargets.map(outputTarget => {
     return generateAppFilesOutputTarget(config, compilerCtx, buildCtx, outputTarget, entryModules, cmpRegistry);
   }));
+
+  timespan.finish(`generate app files finished`);
 }
 
 
@@ -26,8 +30,6 @@ export async function generateAppFilesOutputTarget(config: d.Config, compilerCtx
     config.logger.createTimeSpan(`generate app files skipped`, true);
     return;
   }
-
-  const timespan = config.logger.createTimeSpan(`generate app files started`);
 
   try {
     // generate the shared app registry object
@@ -58,8 +60,6 @@ export async function generateAppFilesOutputTarget(config: d.Config, compilerCtx
   } catch (e) {
     catchError(buildCtx.diagnostics, e);
   }
-
-  timespan.finish(`generate app files finished`);
 }
 
 
