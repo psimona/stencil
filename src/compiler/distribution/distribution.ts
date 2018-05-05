@@ -16,19 +16,19 @@ export async function generateDistributions(config: d.Config, compilerCtx: d.Com
 
 
 async function generateDistribution(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, outputTarget: d.OutputTargetDist): Promise<any> {
-  const pkgData = await readPackageJson(config, compilerCtx);
-
-  validatePackageJson(config, outputTarget, buildCtx.diagnostics, pkgData);
-
   if (hasError(buildCtx.diagnostics)) {
     return;
   }
+
+  const pkgData = await readPackageJson(config, compilerCtx);
 
   await Promise.all([
     generateDistModuleIndex(config, compilerCtx, outputTarget),
     copyComponentStyles(config, compilerCtx, buildCtx),
     generateTypes(config, compilerCtx, buildCtx, pkgData)
   ]);
+
+  await validatePackageJson(config, compilerCtx, outputTarget, buildCtx.diagnostics, pkgData);
 }
 
 

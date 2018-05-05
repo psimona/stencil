@@ -60,12 +60,12 @@ export function getCoreFilename(config: d.Config, coreId: string, jsContent: str
 
 
 export function getDistIndexCjsPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, outputTarget.dir, 'index.js');
+  return pathJoin(config, outputTarget.buildDir, 'index.js');
 }
 
 
 export function getDistIndexEsmPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, outputTarget.dir, 'index.esm.js');
+  return pathJoin(config, outputTarget.buildDir, 'index.esm.js');
 }
 
 

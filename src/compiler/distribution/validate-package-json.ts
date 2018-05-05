@@ -2,81 +2,16 @@ import * as d from '../../declarations';
 import { buildError, buildWarn, normalizePath, pathJoin } from '../util';
 import { COLLECTION_MANIFEST_FILE_NAME } from '../../util/constants';
 import { COMPONENTS_DTS } from './distribution';
-import { getDistIndexEsmPath, getLoaderFileName } from '../app/app-file-naming';
+import { getDistIndexCjsPath, getDistIndexEsmPath, getLoaderPath } from '../app/app-file-naming';
 
 
-export function validatePackageJson(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
+export async function validatePackageJson(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
   validatePackageFiles(config, outputTarget, diagnostics, pkgData);
-  validateModule(config, outputTarget, diagnostics, pkgData);
-  validateMain(config, outputTarget, diagnostics, pkgData);
-  validateTypes(config, outputTarget, diagnostics, pkgData);
+  await validateModule(config, compilerCtx, outputTarget, diagnostics, pkgData);
+  await validateMain(config, compilerCtx, outputTarget, diagnostics, pkgData);
+  await validateTypes(config, compilerCtx, outputTarget, diagnostics, pkgData);
   validateCollection(config, outputTarget, diagnostics, pkgData);
   validateNamespace(config, diagnostics);
-}
-
-
-export function validateModule(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const modulePath = getDistIndexEsmPath(config, outputTarget);
-  const moduleRelPath = normalizePath(config.sys.path.relative(config.rootDir, modulePath));
-
-  if (!pkgData.module) {
-    const err = buildWarn(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${moduleRelPath}`;
-
-  } else if (normalizePath(pkgData.module) !== moduleRelPath) {
-    const err = buildWarn(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${moduleRelPath}`;
-  }
-}
-
-
-export function validateMain(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const mainFileName = getLoaderFileName(config);
-  const main = pathJoin(config, config.sys.path.relative(config.rootDir, outputTarget.buildDir), mainFileName);
-
-  if (!pkgData.main || normalizePath(pkgData.main) !== main) {
-    const err = buildWarn(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "main" property is required when generating a distribution and must be set to: ${main}`;
-  }
-}
-
-
-export function validateTypes(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  if (typeof pkgData.types !== 'string' || pkgData.types === '') {
-    const componentsDtsFileAbsPath = config.sys.path.join(outputTarget.typesDir, COMPONENTS_DTS);
-    const componentsDtsFileRelPath = pathJoin(config, config.sys.path.relative(config.rootDir, componentsDtsFileAbsPath));
-
-    const err = buildError(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "types" property is required when generating a distribution. Recommended entry d.ts file is: ${componentsDtsFileRelPath}`;
-
-  } else if (!pkgData.types.endsWith('.d.ts')) {
-    const err = buildError(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "types" file must have a ".d.ts" extension: ${pkgData.types}`;
-  }
-}
-
-
-export function validateCollection(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const collection = pathJoin(config, config.sys.path.relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME);
-  if (!pkgData.collection || normalizePath(pkgData.collection) !== collection) {
-    const err = buildError(diagnostics);
-    err.header = `package.json error`;
-    err.messageText = `package.json "collection" property is required when generating a distribution and must be set to: ${collection}`;
-  }
-}
-
-
-export function validateNamespace(config: d.Config, diagnostics: d.Diagnostic[]) {
-  if (typeof config.namespace !== 'string' || config.fsNamespace === 'app') {
-    const err = buildWarn(diagnostics);
-    err.header = `config warning`;
-    err.messageText = `When generating a distribution it is recommended to choose a unique namespace, which can be updated using the "namespace" config property within the stencil.config.js file.`;
-  }
 }
 
 
@@ -102,3 +37,103 @@ export function validatePackageFiles(config: d.Config, outputTarget: d.OutputTar
   }
 }
 
+
+export async function validateModule(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
+  const moduleAbs = getDistIndexEsmPath(config, outputTarget);
+  const moduleRel = normalizePath(config.sys.path.relative(config.rootDir, moduleAbs));
+
+  if (typeof pkgData.module !== 'string') {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "module" property is required when generating a distribution. It's recommended to set the "module" property to: ${moduleRel}`;
+    return;
+  }
+
+  const pkgFile = pathJoin(config, config.rootDir, pkgData.module);
+  const fileExists = await compilerCtx.fs.access(pkgFile);
+  if (!fileExists) {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "module" property is set to "${pkgData.module}" but cannot be found. It's recommended to set the "module" property to: ${moduleRel}`;
+    return;
+  }
+}
+
+
+export async function validateMain(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
+  const mainAbs = getDistIndexCjsPath(config, outputTarget);
+  const mainRel = pathJoin(config, config.sys.path.relative(config.rootDir, mainAbs));
+
+  if (typeof pkgData.main !== 'string' || pkgData.main === '') {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "main" property is required when generating a distribution. It's recommended to set the "main" property to: ${mainRel}`;
+    return;
+  }
+
+  const pkgFile = pathJoin(config, config.rootDir, pkgData.main);
+  const fileExists = await compilerCtx.fs.access(pkgFile);
+  if (!fileExists) {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "main" property is set to "${pkgData.main}" but cannot be found. It's recommended to set the "main" property to: ${mainRel}`;
+    return;
+  }
+
+  const loaderAbs = getLoaderPath(config, outputTarget);
+  const loaderRel = pathJoin(config, config.sys.path.relative(config.rootDir, loaderAbs));
+  if (normalizePath(pkgData.main) === loaderRel) {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "main" property should not be set to "${pkgData.main}", which is the browser loader (this was a previous recommendation, but recently updated). Instead, please set the "main" property to: ${mainRel}`;
+    return;
+  }
+}
+
+
+export async function validateTypes(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
+  const typesAbs = config.sys.path.join(outputTarget.typesDir, COMPONENTS_DTS);
+  const typesRel = pathJoin(config, config.sys.path.relative(config.rootDir, typesAbs));
+
+  if (typeof pkgData.types !== 'string' || pkgData.types === '') {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "types" property is required when generating a distribution. It's recommended to set the "types" property to: ${typesRel}`;
+    return;
+  }
+
+  if (!pkgData.types.endsWith('.d.ts')) {
+    const err = buildError(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "types" file must have a ".d.ts" extension: ${pkgData.types}`;
+    return;
+  }
+
+  const pkgFile = pathJoin(config, config.rootDir, pkgData.types);
+  const fileExists = await compilerCtx.fs.access(pkgFile);
+  if (!fileExists) {
+    const err = buildWarn(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "types" property is set to "${pkgData.types}" but cannot be found. It's recommended to set the "types" property to: ${typesRel}`;
+    return;
+  }
+}
+
+
+export function validateCollection(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
+  const collection = pathJoin(config, config.sys.path.relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME);
+  if (!pkgData.collection || normalizePath(pkgData.collection) !== collection) {
+    const err = buildError(diagnostics);
+    err.header = `package.json error`;
+    err.messageText = `package.json "collection" property is required when generating a distribution and must be set to: ${collection}`;
+  }
+}
+
+
+export function validateNamespace(config: d.Config, diagnostics: d.Diagnostic[]) {
+  if (typeof config.namespace !== 'string' || config.fsNamespace === 'app') {
+    const err = buildWarn(diagnostics);
+    err.header = `config warning`;
+    err.messageText = `When generating a distribution it is recommended to choose a unique namespace rather than the default setting "App". Please updated the "namespace" config property within the stencil.config.js file.`;
+  }
+}
