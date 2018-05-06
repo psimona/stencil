@@ -357,7 +357,7 @@ export function createPlatformMainLegacy(namespace: string, Context: d.CoreConte
   }
 
   if (Build.devInspector) {
-    generateDevInspector(App, namespace, window, plt);
+    generateDevInspector(App, namespace, win, plt);
   }
 
   // register all the components now that everything's ready

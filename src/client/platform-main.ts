@@ -241,7 +241,7 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
   }
 
   if (Build.devInspector) {
-    generateDevInspector(App, namespace, window, plt);
+    generateDevInspector(App, namespace, win, plt);
   }
 
   if (Build.browserModuleLoader) {
