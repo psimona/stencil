@@ -15,13 +15,13 @@ const DIST_CLIENT_DIR = path.join(DST_DIR, 'client');
 const DECLARATIONS_SRC_DIR = path.join(ROOT_DIR, 'scripts', 'declarations');
 const DECLARATIONS_DIST_DIR = path.join(DST_DIR, 'client', 'declarations');
 
-const inputCoreFile = path.join(TRANSPILED_DIR, 'client', 'browser', 'core.js');
+const inputCoreFile = path.join(TRANSPILED_DIR, 'client', 'core-browser.js');
 const outputCoreFile = path.join(DIST_CLIENT_DIR, 'core.build.js');
 
-const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'browser', 'loader.js');
+const inputLoaderFile = path.join(TRANSPILED_DIR, 'client', 'loader.js');
 const outputLoaderFile = path.join(DST_DIR, 'client', 'loader.js');
 
-const inputCoreEsmFile = path.join(TRANSPILED_DIR, 'client', 'esm', 'core.js');
+const inputCoreEsmFile = path.join(TRANSPILED_DIR, 'client', 'core-esm.js');
 const outputCoreEsmFile = path.join(DIST_CLIENT_DIR, 'core.esm.js');
 const outputPolyfillsEsmFile = path.join(DIST_CLIENT_DIR, 'polyfills.esm.js');
 
@@ -128,7 +128,7 @@ if (success) {
   }
 
   process.on('exit', (code) => {
-    fs.removeSync(TRANSPILED_DIR);
+    // fs.removeSync(TRANSPILED_DIR);
     console.log(`✅ core: ${outputCoreFile}`);
   });
 

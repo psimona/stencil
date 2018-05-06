@@ -7,8 +7,8 @@
     "build.stencil": "node ../../bin/stencil build --dev --watch --es5",
     "dev": "sd concurrent \"npm run build.stencil\" \"stencil-dev-server\" ",
     "karma": " karma start karma.config.js && npm run karma.webpack",
-    "karma.prod": "npm run tsc && ../../bin/stencil build && karma start karma.config.js && npm run karma.webpack",
-    "karma.webpack": "webpack --config src/stencil-element/webpack.config.js",
+    "karma.prod": "npm run tsc && ../../bin/stencil build --dev && karma start karma.config.js && npm run karma.webpack",
+    "karma.webpack": "webpack --config src/esm-imports/webpack.config.js",
     "tsc": "node ../../node_modules/.bin/tsc -p tsconfig.json"
   },
   "private": true,

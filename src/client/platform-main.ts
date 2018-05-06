@@ -134,6 +134,10 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
         }
       }
 
+      if (Build.externalModuleLoader) {
+        cmpRegistry[cmpMeta.tagNameMeta] = cmpMeta;
+      }
+
       win.customElements.define(cmpMeta.tagNameMeta, HostElementConstructor);
     }
   }
@@ -188,7 +192,6 @@ export function createPlatformMain(namespace: string, Context: d.CoreContext, wi
 
         // bundle all loaded up, let's continue
         queueUpdate(plt, elm);
-
       });
 
 

@@ -20,7 +20,6 @@ export async function setBuildConditionals(
 
   // figure out which sections of the core code this build doesn't even need
   const coreBuild: d.BuildConditionals = ({} as any);
-  coreBuild.browserModuleLoader = true;
   coreBuild.coreId = coreId;
   coreBuild.clientSide = true;
   coreBuild.isDev = !!config.devMode;
@@ -45,6 +44,7 @@ export async function setBuildConditionals(
   await Promise.all(promises);
 
   if (coreId === 'core') {
+    coreBuild.browserModuleLoader = true;
     coreBuild.slotPolyfill = !!coreBuild.slotPolyfill;
     if (coreBuild.slotPolyfill) {
       coreBuild.slotPolyfill = !!(buildCtx.hasSlot);
@@ -52,6 +52,7 @@ export async function setBuildConditionals(
     compilerCtx.lastBuildConditionalsBrowserEsm = coreBuild;
 
   } else if (coreId === 'core.pf') {
+    coreBuild.browserModuleLoader = true;
     coreBuild.es5 = true;
     coreBuild.polyfills = true;
     coreBuild.cssVarShim = true;
@@ -59,6 +60,7 @@ export async function setBuildConditionals(
     compilerCtx.lastBuildConditionalsBrowserEs5 = coreBuild;
 
   } else if (coreId === 'esm') {
+    coreBuild.externalModuleLoader = true;
     coreBuild.cssVarShim = true;
     coreBuild.slotPolyfill = true;
     compilerCtx.lastBuildConditionalsEsm = coreBuild;

@@ -1,12 +1,13 @@
-import * as d from '../../declarations';
-import { createPlatformMain } from '../platform-main';
-import { ensureFeatures } from './ensure-features';
-import { fillCmpMetaFromConstructor } from '../../util/cmp-meta';
+import * as d from '../declarations';
+import { createPlatformMain } from './platform-main';
+import { ensureFeatures } from './ensure-features-esm';
+import { fillCmpMetaFromConstructor } from '../util/cmp-meta';
 
 
 const pltMap: { [namespace: string]: d.PlatformApi } = {};
 declare const appGlobal: Function;
 
+export { h } from '../renderer/vdom/h';
 
 export function customElementsDefine(win: Window, cmpConstructor: d.ComponentConstructor | d.ComponentConstructor[], opts: CustomElementsDefineOptions = {}) {
 

@@ -1,12 +1,12 @@
-import { Build } from '../../util/build-conditionals';
-import { CoreContext } from '../../declarations';
-import { createPlatformMain } from '../platform-main';
-import { createPlatformMainLegacy } from '../platform-main-legacy';
-import { CustomStyle } from '../polyfills/css-shim/custom-style';
+import * as d from '../declarations';
+import { Build } from '../util/build-conditionals';
+import { createPlatformMain } from './platform-main';
+import { createPlatformMainLegacy } from './platform-main-legacy';
+import { CustomStyle } from './polyfills/css-shim/custom-style';
 
 
 declare const namespace: string;
-declare const Context: CoreContext;
+declare const Context: d.CoreContext;
 declare const resourcesUrl: string;
 declare const hydratedCssClass: string;
 
