@@ -85,7 +85,7 @@ export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.Outp
 
 
 export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), `polyfills.esm.js`);
+  return pathJoin(config, getAppBuildDir(config, outputTarget), `polyfills`);
 }
 
 

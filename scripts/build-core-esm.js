@@ -30,6 +30,7 @@ function generateBundle(inputFile, outputFile, bundle, format) {
   }).then(clientCore => {
     let code = clientCore.code.trim();
     code = dynamicImportFnHack(code);
+    code = polyfillsHack(code);
 
     fs.writeFile(outputFile, code, (err) => {
       if (err) {
@@ -44,7 +45,15 @@ function generateBundle(inputFile, outputFile, bundle, format) {
 function dynamicImportFnHack(input) {
   // typescript is all tripped all by import()
   // nothing a good ol' string replace can't fix ;)
-  return input.replace(/ __import\(/g, ' import(');
+  return input.replace(/__import\(/g, 'import(');
+}
+
+
+function polyfillsHack(input) {
+  const promiseFile = path.join(__dirname, '..', 'src', 'client', 'polyfills', 'index.js');
+  const promiseContent = fs.readFileSync(promiseFile, 'utf-8');
+
+  return promiseContent + '\n' + input;
 }
 
 module.exports = buildCoreEsm;

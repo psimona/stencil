@@ -1,36 +1,37 @@
 import * as d from '../declarations';
 import { createPlatformMain } from './platform-main';
-import { ensureFeatures } from './ensure-features-esm';
 import { fillCmpMetaFromConstructor } from '../util/cmp-meta';
 
 
-const pltMap: { [namespace: string]: d.PlatformApi } = {};
 declare const appGlobal: Function;
+declare const applyPolyfills: Function;
+const pltMap: { [namespace: string]: d.PlatformApi } = {};
 
 export { h } from '../renderer/vdom/h';
 
+
 export function customElementsDefine(win: Window, cmpConstructor: d.ComponentConstructor | d.ComponentConstructor[], opts: CustomElementsDefineOptions = {}) {
+  applyPolyfills(win, () => {
 
-  const namespace = opts.namespace || 'App';
-  if (!pltMap[namespace]) {
-    const Context: d.CoreContext = {};
-    const resourcesUrl = opts.resourcesUrl || './';
-    const hydratedCssClass = opts.hydratedCssClass || 'hydrated';
+    const namespace = opts.namespace || 'App';
+    if (!pltMap[namespace]) {
+      const Context: d.CoreContext = {};
+      const resourcesUrl = opts.resourcesUrl || './';
+      const hydratedCssClass = opts.hydratedCssClass || 'hydrated';
 
-    appGlobal(namespace, Context, win, win.document, resourcesUrl, hydratedCssClass);
+      appGlobal(namespace, Context, win, win.document, resourcesUrl, hydratedCssClass);
 
-    // create a platform for this namespace
-    pltMap[namespace] = createPlatformMain(
-      namespace,
-      Context,
-      win,
-      win.document,
-      resourcesUrl,
-      hydratedCssClass
-    );
-  }
+      // create a platform for this namespace
+      pltMap[namespace] = createPlatformMain(
+        namespace,
+        Context,
+        win,
+        win.document,
+        resourcesUrl,
+        hydratedCssClass
+      );
+    }
 
-  ensureFeatures(win, () => {
     // polyfills have been applied if need be
 
     const cmpArr = Array.isArray(cmpConstructor) ? cmpConstructor : [cmpConstructor];
@@ -39,7 +40,8 @@ export function customElementsDefine(win: Window, cmpConstructor: d.ComponentCon
 
       if (isNative(win.customElements.define)) {
         // native custom elements supported
-        HostElementConstructor = class extends (win as any).HTMLElement {};
+        const createHostConstructor = new Function('w', 'return class extends w.HTMLElement{}');
+        HostElementConstructor = createHostConstructor(win);
 
       } else {
         // using polyfilled custom elements
@@ -60,7 +62,13 @@ export function customElementsDefine(win: Window, cmpConstructor: d.ComponentCon
         HostElementConstructor
       );
     });
+
   });
+}
+
+
+function isNative(fn: Function) {
+  return (/\{\s*\[native code\]\s*\}/).test('' + fn);
 }
 
 
@@ -68,9 +76,4 @@ export interface CustomElementsDefineOptions {
   hydratedCssClass?: string;
   namespace?: string;
   resourcesUrl?: string;
-}
-
-
-function isNative(fn: Function) {
-  return (/\{\s*\[native code\]\s*\}/).test('' + fn);
 }

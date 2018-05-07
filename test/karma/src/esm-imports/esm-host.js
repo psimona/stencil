@@ -1,12 +1,14 @@
 
-
-export class MyEsmComponent {
-
-  static get is() {
-    return 'esm-import';
+var MyEsmComponent = /** @class */ (function () {
+  function MyEsmComponent() {
   }
+  MyEsmComponent.is = 'esm-import';
+  MyEsmComponent.getModule = function () {
+    return import('./esm-cmp.js').then(function(m) {
+      return m.MyEsmComponent;
+    });
+  };
+  return MyEsmComponent;
+}());
 
-  static getModule() {
-    return import('./esm-cmp.js').then(m => m.MyEsmComponent);
-  }
-}
+export { MyEsmComponent };

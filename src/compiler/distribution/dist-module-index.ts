@@ -1,6 +1,7 @@
 import * as d from '../../declarations';
+import { copyEsmCorePolyfills } from '../app/app-polyfills';
 import { generatePreamble, normalizePath, pathJoin } from '../util';
-import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistIndexCjsPath, getDistIndexEsmPath, getPolyfillsEsmBuildPath } from '../app/app-file-naming';
+import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistIndexCjsPath, getDistIndexEsmPath } from '../app/app-file-naming';
 
 
 export async function generateDistModuleIndex(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist) {
@@ -27,7 +28,7 @@ export async function generateDistModuleIndex(config: d.Config, compilerCtx: d.C
   await Promise.all([
     compilerCtx.fs.writeFile(distIndexCjsPath, cjs.join('\n')),
     compilerCtx.fs.writeFile(distIndexEsmPath, esm.join('\n')),
-    copyPolyfills(config, compilerCtx, outputTarget)
+    copyEsmCorePolyfills(config, compilerCtx, outputTarget)
   ]);
 }
 
@@ -41,12 +42,4 @@ async function addExport(config: d.Config, compilerCtx: d.CompilerCtx, outputTar
       `export * from '${relPath}';`
     );
   }
-}
-
-
-async function copyPolyfills(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist) {
-  const polyfillsPath = getPolyfillsEsmBuildPath(config, outputTarget);
-  const polyfillsContent = await config.sys.getClientCoreFile({ staticName: 'polyfills.esm.js' });
-
-  await compilerCtx.fs.writeFile(polyfillsPath, polyfillsContent);
 }

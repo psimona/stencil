@@ -11,7 +11,7 @@ declare const resourcesUrl: string;
 declare const hydratedCssClass: string;
 
 
-if (Build.es5) {
+if (Build.polyfills) {
   // es5 build which does not use es module imports or dynamic imports
   // and requires the es5 way of extending HTMLElement
 

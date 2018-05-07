@@ -23,7 +23,7 @@ const outputLoaderFile = path.join(DST_DIR, 'client', 'loader.js');
 
 const inputCoreEsmFile = path.join(TRANSPILED_DIR, 'client', 'core-esm.js');
 const outputCoreEsmFile = path.join(DIST_CLIENT_DIR, 'core.esm.js');
-const outputPolyfillsEsmFile = path.join(DIST_CLIENT_DIR, 'polyfills.esm.js');
+const outputPolyfillsEsmDir = path.join(DIST_CLIENT_DIR, 'polyfills');
 
 
 const success = transpile('../src/tsconfig.json');
@@ -42,7 +42,7 @@ if (success) {
   copyMain();
   copyClientFiles();
   copyUtilDir();
-  buildPolyfills(outputPolyfillsEsmFile);
+  buildPolyfills(outputPolyfillsEsmDir);
 
 
   function bundleClientCore() {
@@ -128,7 +128,7 @@ if (success) {
   }
 
   process.on('exit', (code) => {
-    // fs.removeSync(TRANSPILED_DIR);
+    fs.removeSync(TRANSPILED_DIR);
     console.log(`✅ core: ${outputCoreFile}`);
   });
 

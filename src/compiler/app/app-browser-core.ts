@@ -1,7 +1,7 @@
 import { BuildConditionals, BuildCtx, CompilerCtx, Config, OutputTarget } from '../../declarations';
 import { buildCoreContent } from './build-core-content';
 import { generatePreamble, pathJoin } from '../util';
-import { getAppCorePolyfills } from './app-polyfills';
+import { getAppBrowserCorePolyfills } from './app-polyfills';
 import { getAppBuildDir, getCoreFilename } from './app-file-naming';
 
 
@@ -26,7 +26,7 @@ export async function generateBrowserCore(config: Config, compilerCtx: CompilerC
     // this build wants polyfills so let's
     // add the polyfills to the top of the core content
     // the polyfilled code is already es5/minified ready to go
-    const polyfillsContent = await getAppCorePolyfills(config);
+    const polyfillsContent = await getAppBrowserCorePolyfills(config);
     jsContent = polyfillsContent + '\n' + jsContent;
   }
 

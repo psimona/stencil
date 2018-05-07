@@ -60,6 +60,7 @@ export async function setBuildConditionals(
     compilerCtx.lastBuildConditionalsBrowserEs5 = coreBuild;
 
   } else if (coreId === 'esm') {
+    coreBuild.es5 = true;
     coreBuild.externalModuleLoader = true;
     coreBuild.cssVarShim = true;
     coreBuild.slotPolyfill = true;

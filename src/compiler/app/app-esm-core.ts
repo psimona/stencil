@@ -19,5 +19,11 @@ export async function generateEsmCore(config: Config, compilerCtx: CompilerCtx, 
 
   const coreEsm = getCoreEsmBuildPath(config, outputTarget);
 
+  // fighting with typescript/webpack/es5 builds too much
+  // hack to keep polyfill imports still as import()
+  // #dealwithit
+  jsContent = jsContent.replace(/require\(\'\.\/polyfills/g, 'import(\'./polyfills');
+  jsContent = jsContent.replace('exports.applyPolyfills = applyPolyfills;', '');
+
   await compilerCtx.fs.writeFile(coreEsm, jsContent);
 }
