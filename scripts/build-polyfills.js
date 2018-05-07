@@ -13,14 +13,14 @@ const POLYFILLS = [
   'array-find.js',
   'array-includes.js',
   'object-assign.js',
+  'object-entries.js',
   'string-startswith.js',
   'string-endswith.js',
   'promise.js',
   'request-animation-frame.js',
-  'closest.js',
   'performance-now.js',
+  'closest.js',
   'remove-element.js',
-  'object-entries.js',
 ];
 
 
@@ -38,8 +38,8 @@ module.exports = function buildPolyfills(outputPolyfillsEsmFile) {
   }).join('\n');
 
   const indexEsm = [
-    'export default function applyPolyfills(window) {',
-    'var document = window.document',
+    'export function applyPolyfills(window) {',
+    'var document = window.document;',
     polyfills,
     '}'
   ];
@@ -49,8 +49,8 @@ module.exports = function buildPolyfills(outputPolyfillsEsmFile) {
 
   const indexCjs = [
     '"use strict";',
-    'module.exports = function(window) {',
-    'var document = window.document',
+    'exports.applyPolyfills = function(window) {',
+    'var document = window.document;',
     polyfills,
     '};'
   ];

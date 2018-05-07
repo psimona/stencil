@@ -5,8 +5,8 @@ export function ensureFeatures(window: Window, cb?: () => void) {
     cb();
 
   } else {
-    __import('./polyfills.esm.js').then((applyPolyfills: (window: Window) => void) => {
-      applyPolyfills(window);
+    __import('./polyfills.esm.js').then((polyfills: any) => {
+      polyfills.applyPolyfills(window);
       cb();
     });
   }
