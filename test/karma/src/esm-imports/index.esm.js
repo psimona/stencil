@@ -1,4 +1,6 @@
-import { customElementsDefine } from '../../test-dist/index.esm';
-import { MyEsmComponent } from './esm-host';
+// import {
+//   customElementsDefine,
 
-customElementsDefine(window, MyEsmComponent);
+// } from '../../test-dist/index.esm';
+
+// customElementsDefine(window, MyEsmComponent);

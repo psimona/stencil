@@ -8,7 +8,7 @@ import { generateEs5DisabledMessage } from './app-es5-disabled';
 import { generateGlobalStyles } from './app-global-styles';
 import { generateLoader } from './app-loader';
 import { setBuildConditionals } from './build-conditionals';
-import { generateCustomElements } from './generate-custom-elements';
+import { generateCustomElementHosts } from './generate-custom-elements';
 
 
 export async function generateAppFiles(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, entryModules: d.EntryModule[], cmpRegistry: d.ComponentRegistry) {
@@ -58,7 +58,7 @@ export async function generateAppFilesOutputTarget(config: d.Config, compilerCtx
       generateGlobalStyles(config, compilerCtx, buildCtx, outputTarget),
 
       // create the custom elements file
-      generateCustomElements(config, compilerCtx, cmpRegistry, outputTarget)
+      generateCustomElementHosts(config, compilerCtx, cmpRegistry, outputTarget)
     ]);
 
   } catch (e) {

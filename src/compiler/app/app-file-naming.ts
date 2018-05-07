@@ -80,7 +80,7 @@ export function getCoreEsmBuildPath(config: d.Config, outputTarget: d.OutputTarg
 
 
 export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), `components.esm.js`);
+  return pathJoin(config, getAppBuildDir(config, outputTarget), `${config.fsNamespace}.components.esm.js`);
 }
 
 

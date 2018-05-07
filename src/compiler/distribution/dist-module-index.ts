@@ -1,23 +1,21 @@
 import * as d from '../../declarations';
 import { copyEsmCorePolyfills } from '../app/app-polyfills';
-import { generatePreamble, normalizePath, pathJoin } from '../util';
+import { generatePreamble, normalizePath } from '../util';
 import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistIndexCjsPath, getDistIndexEsmPath } from '../app/app-file-naming';
 
 
 export async function generateDistModuleIndex(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist) {
   const cjs: string[] = [
-    generatePreamble(config, `CommonJS Main`)
+    generatePreamble(config, `${config.namespace}: CommonJS Main`)
   ];
   const esm: string[] = [
-    generatePreamble(config, `ES Module`)
+    generatePreamble(config, `${config.namespace}: ES Module`)
   ];
 
-  const collectionIndexJs = pathJoin(config, outputTarget.collectionDir, 'index.js');
   const componentsEsm = getComponentsEsmBuildPath(config, outputTarget);
   const coreEsm = getCoreEsmBuildPath(config, outputTarget);
 
   await Promise.all([
-    addExport(config, compilerCtx, outputTarget, esm, collectionIndexJs),
     addExport(config, compilerCtx, outputTarget, esm, componentsEsm),
     addExport(config, compilerCtx, outputTarget, esm, coreEsm)
   ]);

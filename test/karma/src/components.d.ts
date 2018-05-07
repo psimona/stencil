@@ -229,6 +229,39 @@ declare global {
 declare global {
 
   namespace StencilComponents {
+    interface EsmImport {
+
+    }
+  }
+
+  interface HTMLEsmImportElement extends StencilComponents.EsmImport, HTMLStencilElement {}
+
+  var HTMLEsmImportElement: {
+    prototype: HTMLEsmImportElement;
+    new (): HTMLEsmImportElement;
+  };
+  interface HTMLElementTagNameMap {
+    'esm-import': HTMLEsmImportElement;
+  }
+  interface ElementTagNameMap {
+    'esm-import': HTMLEsmImportElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      'esm-import': JSXElements.EsmImportAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface EsmImportAttributes extends HTMLAttributes {
+
+    }
+  }
+}
+
+
+declare global {
+
+  namespace StencilComponents {
     interface LifecycleBasicA {
 
     }
