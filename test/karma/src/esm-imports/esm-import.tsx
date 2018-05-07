@@ -7,6 +7,8 @@ import { Component } from '../../../../dist/index';
 export class MyEsmComponent {
 
   render() {
-    return h('div', null, 'esm-import!!');
+    return (
+      <div>esm-import</div>
+    );
   }
 }
