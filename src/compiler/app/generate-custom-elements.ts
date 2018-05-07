@@ -9,47 +9,34 @@ export async function generateCustomElementHosts(config: d.Config, compilerCtx: 
     if (styleMode === '$' && isScoped) {
       return `
     if (opts.scoped) {
-      return import('${fileName}.sc.js').then(function(m) {
-        return m.${className};
-      });
-    } else {
-      return import('${fileName}.js').then(function(m) {
-        return m.${className};
-      });
-    }`;
+      return import('${fileName}.sc.js').then(function(m) { return m.${className}; });
+    }
+    return import('${fileName}.js').then(function(m) { return m.${className}; });`;
     }
 
     if (styleMode === '$') {
       return `
-    return import('${fileName}.js').then(function(m) {
-      return m.${className};
-    });`;
+    return import('${fileName}.js').then(function(m) { return m.${className}; });`;
     }
 
     if (isScoped) {
     return `
     if (opts.mode === '${styleMode}' && opts.scoped) {
-      return import('${fileName}.sc.js').then(function(m) {
-        return m.${className};
-      });
+      return import('${fileName}.sc.js').then(function(m) { return m.${className}; });
     } else if (opts.mode === '${styleMode}') {
-      return import('${fileName}.js').then(function(m) {
-        return m.${className};
-      });
+      return import('${fileName}.js').then(function(m) { return m.${className}; });
     }`;
     }
 
     return `
     if (opts.mode === '${styleMode}') {
-      return import('${fileName}.js').then(function(m) {
-        return m.${className};
-      });
+      return import('${fileName}.js').then(function(m) { return m.${className}; });
     }`;
   }
 
   const componentClassList: string[] = [];
 
-  let fileContents = Object.keys(cmpRegistry).map(tagName => {
+  let fileContents = Object.keys(cmpRegistry).sort().map(tagName => {
     const cmpMeta = cmpRegistry[tagName];
     const isScoped = cmpMeta.encapsulation === ENCAPSULATION.ScopedCss;
     componentClassList.push(cmpMeta.componentClass);
@@ -71,8 +58,8 @@ var ${cmpMeta.componentClass}Component = /** @class **/ (function() {
   fileContents += `
 export {${componentClassList.map(className => {
     return `
-  ${className},`;
-  }).join('')}
+  ${className}`;
+  }).join(',')}
 };
 `;
 
