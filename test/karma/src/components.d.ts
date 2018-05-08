@@ -276,7 +276,8 @@ declare global {
 
   namespace StencilComponents {
     interface EsmImport {
-
+      'propVal': number;
+      'someMethod': () => void;
     }
   }
 
@@ -299,7 +300,8 @@ declare global {
   }
   namespace JSXElements {
     export interface EsmImportAttributes extends HTMLAttributes {
-
+      'onSomeEvent'?: (event: CustomEvent) => void;
+      'propVal'?: number;
     }
   }
 }
