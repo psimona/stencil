@@ -111,7 +111,7 @@ export function setupDomTests(document: Document) {
 
       var observer = new MutationObserver(() => {
         setTimeout(() => {
-          (window as any).App.Context.queue.write(done);
+          (window as any).TestApp.Context.queue.write(done);
         }, 100);
       });
 
