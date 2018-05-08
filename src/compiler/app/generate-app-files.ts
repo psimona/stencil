@@ -2,8 +2,8 @@ import * as d from '../../declarations';
 import { catchError } from '../util';
 import { createAppRegistry, writeAppRegistry } from './app-registry';
 import { generateAppGlobalScript } from './app-global-scripts';
-import { generateBrowserCore } from './app-browser-core';
-import { generateEsmCore } from './app-esm-core';
+import { generateCoreBrowser } from './app-core-browser';
+import { generateEsmCore } from './app-core-esm';
 import { generateEsmHosts } from './generate-esm-hosts';
 import { generateEs5DisabledMessage } from './app-es5-disabled';
 import { generateGlobalStyles } from './app-global-styles';
@@ -44,7 +44,7 @@ export async function generateAppFilesOutputTarget(config: d.Config, compilerCtx
       generateBrowserCoreEs5(config, compilerCtx, buildCtx, outputTarget, entryModules, appRegistry),
 
       // core esm
-      generateCoreEsm(config, compilerCtx, buildCtx, outputTarget, entryModules, appRegistry)
+      generateEsmCore(config, compilerCtx, buildCtx, outputTarget, entryModules, appRegistry)
     ]);
 
     await Promise.all([
@@ -74,7 +74,7 @@ async function generateBrowserCoreEsm(config: d.Config, compilerCtx: d.CompilerC
   // figure out which sections should be included in the core build
   const buildConditionals = await setBuildConditionals(config, compilerCtx, 'core', buildCtx, entryModules);
 
-  const coreFilename = await generateBrowserCore(config, compilerCtx, buildCtx, outputTarget, globalJsContentsEsm, buildConditionals);
+  const coreFilename = await generateCoreBrowser(config, compilerCtx, buildCtx, outputTarget, globalJsContentsEsm, buildConditionals);
   appRegistry.core = coreFilename;
 }
 
@@ -86,7 +86,7 @@ async function generateBrowserCoreEs5(config: d.Config, compilerCtx: d.CompilerC
 
     const buildConditionalsEs5 = await setBuildConditionals(config, compilerCtx, 'core.pf', buildCtx, entryModules);
 
-    const coreFilenameEs5 = await generateBrowserCore(config, compilerCtx, buildCtx, outputTarget, globalJsContentsEs5, buildConditionalsEs5);
+    const coreFilenameEs5 = await generateCoreBrowser(config, compilerCtx, buildCtx, outputTarget, globalJsContentsEs5, buildConditionalsEs5);
     appRegistry.corePolyfilled = coreFilenameEs5;
 
   } else {
@@ -95,19 +95,3 @@ async function generateBrowserCoreEs5(config: d.Config, compilerCtx: d.CompilerC
   }
 }
 
-
-async function generateCoreEsm(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, outputTarget: d.OutputTarget, entryModules: d.EntryModule[], appRegistry: d.AppRegistry) {
-  if (outputTarget.type !== 'dist') {
-    return;
-  }
-
-  // browser esm core build
-  const globalJsContentsEsm = await generateAppGlobalScript(config, compilerCtx, buildCtx, appRegistry);
-
-  const hasAppGlobalImport = !!(globalJsContentsEsm && globalJsContentsEsm.length);
-
-  // figure out which sections should be included in the core build
-  const buildConditionals = await setBuildConditionals(config, compilerCtx, 'esm.es5', buildCtx, entryModules);
-
-  await generateEsmCore(config, compilerCtx, buildCtx, outputTarget, hasAppGlobalImport, buildConditionals);
-}

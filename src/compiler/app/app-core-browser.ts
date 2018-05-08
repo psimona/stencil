@@ -5,7 +5,7 @@ import { getAppBrowserCorePolyfills } from './app-polyfills';
 import { getAppBuildDir, getCoreFilename } from './app-file-naming';
 
 
-export async function generateBrowserCore(config: Config, compilerCtx: CompilerCtx, buildCtx: BuildCtx, outputTarget: OutputTarget, globalJsContent: string, buildConditionals: BuildConditionals) {
+export async function generateCoreBrowser(config: Config, compilerCtx: CompilerCtx, buildCtx: BuildCtx, outputTarget: OutputTarget, globalJsContent: string, buildConditionals: BuildConditionals) {
   // mega-minify the core w/ property renaming, but not the user's globals
   // hardcode which features should and should not go in the core builds
   // process the transpiled code by removing unused code and minify when configured to do so

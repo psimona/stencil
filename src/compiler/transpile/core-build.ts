@@ -106,5 +106,7 @@ function getCompilerOptions(coreBuild: d.BuildConditionals) {
     opts.target = ts.ScriptTarget.ES2017;
   }
 
+  opts.module = ts.ModuleKind.ESNext;
+
   return opts;
 }

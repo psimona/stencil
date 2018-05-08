@@ -95,7 +95,7 @@ export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.Outp
 
 
 export function getHyperScriptFnEsmFileName(config: d.Config) {
-  return `${config.fsNamespace}.h.js`;
+  return `${config.fsNamespace}.core.js`;
 }
 
 
