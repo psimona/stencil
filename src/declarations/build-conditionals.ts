@@ -1,7 +1,7 @@
 
 
 export interface BuildConditionals {
-  coreId?: 'core' | 'core.pf' | 'esm';
+  coreId?: 'core' | 'core.pf' | 'esm.es5';
   polyfills?: boolean;
   es5?: boolean;
   cssVarShim?: boolean;

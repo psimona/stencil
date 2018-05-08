@@ -30,7 +30,7 @@ export async function generateAppGlobalScript(config: Config, compilerCtx: Compi
       let appGlobalFilePath = getGlobalJsBuildPath(config, outputTarget);
       promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalJsContent));
 
-      appGlobalFilePath = getGlobalEsmBuildPath(config, outputTarget);
+      appGlobalFilePath = getGlobalEsmBuildPath(config, outputTarget, 'es5');
       promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalEsmContent));
     });
 

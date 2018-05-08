@@ -6,7 +6,7 @@ import { isTsFile } from '../util';
 export async function setBuildConditionals(
   config: d.Config,
   compilerCtx: d.CompilerCtx,
-  coreId: 'core' | 'core.pf' | 'esm',
+  coreId: 'core' | 'core.pf' | 'esm.es5',
   buildCtx: d.BuildCtx,
   entryModules: d.EntryModule[]
 ) {
@@ -59,12 +59,12 @@ export async function setBuildConditionals(
     coreBuild.slotPolyfill = !!(buildCtx.hasSlot);
     compilerCtx.lastBuildConditionalsBrowserEs5 = coreBuild;
 
-  } else if (coreId === 'esm') {
+  } else if (coreId === 'esm.es5') {
     coreBuild.es5 = true;
     coreBuild.externalModuleLoader = true;
     coreBuild.cssVarShim = true;
     coreBuild.slotPolyfill = true;
-    compilerCtx.lastBuildConditionalsEsm = coreBuild;
+    compilerCtx.lastBuildConditionalsEsmEs5 = coreBuild;
   }
 
   coreBuild.slotPolyfill = true;
@@ -74,7 +74,7 @@ export async function setBuildConditionals(
 }
 
 
-export function getLastBuildConditionals(compilerCtx: d.CompilerCtx, coreId: 'core' | 'core.pf' | 'esm', buildCtx: d.BuildCtx) {
+export function getLastBuildConditionals(compilerCtx: d.CompilerCtx, coreId: 'core' | 'core.pf' | 'esm.es5', buildCtx: d.BuildCtx) {
   if (compilerCtx.isRebuild && Array.isArray(buildCtx.filesChanged)) {
     // this is a rebuild and we do have lastBuildConditionals already
     const hasChangedTsFile = buildCtx.filesChanged.some(filePath => {
@@ -92,8 +92,8 @@ export function getLastBuildConditionals(compilerCtx: d.CompilerCtx, coreId: 'co
         return compilerCtx.lastBuildConditionalsBrowserEs5;
       }
 
-      if (coreId === 'esm' && compilerCtx.lastBuildConditionalsEsm) {
-        return compilerCtx.lastBuildConditionalsEsm;
+      if (coreId === 'esm.es5' && compilerCtx.lastBuildConditionalsEsmEs5) {
+        return compilerCtx.lastBuildConditionalsEsmEs5;
       }
     }
   }

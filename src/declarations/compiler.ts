@@ -23,7 +23,7 @@ export interface CompilerCtx {
   lastBuildHadError?: boolean;
   lastBuildConditionalsBrowserEsm?: d.BuildConditionals;
   lastBuildConditionalsBrowserEs5?: d.BuildConditionals;
-  lastBuildConditionalsEsm?: d.BuildConditionals;
+  lastBuildConditionalsEsmEs5?: d.BuildConditionals;
   hasSuccessfulBuild?: boolean;
   localPrerenderServer?: any;
   hasWatcher?: boolean;

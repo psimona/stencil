@@ -4,11 +4,11 @@ import { createAppRegistry, writeAppRegistry } from './app-registry';
 import { generateAppGlobalScript } from './app-global-scripts';
 import { generateBrowserCore } from './app-browser-core';
 import { generateEsmCore } from './app-esm-core';
+import { generateEsmHosts } from './generate-esm-hosts';
 import { generateEs5DisabledMessage } from './app-es5-disabled';
 import { generateGlobalStyles } from './app-global-styles';
 import { generateLoader } from './app-loader';
 import { setBuildConditionals } from './build-conditionals';
-import { generateCustomElementHosts } from './generate-custom-elements';
 
 
 export async function generateAppFiles(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, entryModules: d.EntryModule[], cmpRegistry: d.ComponentRegistry) {
@@ -58,7 +58,7 @@ export async function generateAppFilesOutputTarget(config: d.Config, compilerCtx
       generateGlobalStyles(config, compilerCtx, buildCtx, outputTarget),
 
       // create the custom elements file
-      generateCustomElementHosts(config, compilerCtx, cmpRegistry, outputTarget)
+      generateEsmHosts(config, compilerCtx, cmpRegistry, outputTarget)
     ]);
 
   } catch (e) {
@@ -97,13 +97,17 @@ async function generateBrowserCoreEs5(config: d.Config, compilerCtx: d.CompilerC
 
 
 async function generateCoreEsm(config: d.Config, compilerCtx: d.CompilerCtx, buildCtx: d.BuildCtx, outputTarget: d.OutputTarget, entryModules: d.EntryModule[], appRegistry: d.AppRegistry) {
+  if (outputTarget.type !== 'dist') {
+    return;
+  }
+
   // browser esm core build
   const globalJsContentsEsm = await generateAppGlobalScript(config, compilerCtx, buildCtx, appRegistry);
 
   const hasAppGlobalImport = !!(globalJsContentsEsm && globalJsContentsEsm.length);
 
   // figure out which sections should be included in the core build
-  const buildConditionals = await setBuildConditionals(config, compilerCtx, 'esm', buildCtx, entryModules);
+  const buildConditionals = await setBuildConditionals(config, compilerCtx, 'esm.es5', buildCtx, entryModules);
 
   await generateEsmCore(config, compilerCtx, buildCtx, outputTarget, hasAppGlobalImport, buildConditionals);
 }

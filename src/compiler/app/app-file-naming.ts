@@ -32,15 +32,6 @@ export function getGlobalFileName(config: d.Config) {
 }
 
 
-export function getGlobalEsmFileName(config: d.Config) {
-  return `${config.fsNamespace}.global.esm.js`;
-}
-
-
-export function getGlobalEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), getGlobalEsmFileName(config));
-}
-
 
 export function getGlobalJsBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
   return pathJoin(config, getAppBuildDir(config, outputTarget), getGlobalFileName(config));
@@ -69,23 +60,42 @@ export function getDistIndexEsmPath(config: d.Config, outputTarget: d.OutputTarg
 }
 
 
-export function getCoreEsmFileName(config: d.Config) {
-  return `${config.fsNamespace}.esm.js`;
+export function getCoreEsmBuildDir(config: d.Config, outputTarget: d.OutputTargetDist) {
+  return pathJoin(config, outputTarget.buildDir, 'esm');
 }
 
 
-export function getCoreEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), getCoreEsmFileName(config));
+export function getCoreEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww, sourceTarget: d.SourceTarget) {
+  if (sourceTarget === 'es5') {
+    return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, `${config.fsNamespace}.core.js`);
+  }
+  return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `${config.fsNamespace}.core.js`);
 }
 
 
-export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), `${config.fsNamespace}.components.esm.js`);
+export function getGlobalEsmFileName(config: d.Config) {
+  return `${config.fsNamespace}.global.js`;
+}
+
+
+export function getGlobalEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetWww, sourceTarget: d.SourceTarget) {
+  if (sourceTarget === 'es5') {
+    return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, getGlobalEsmFileName(config));
+  }
+  return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), getGlobalEsmFileName(config));
+}
+
+
+export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist, sourceTarget: d.SourceTarget) {
+  if (sourceTarget === 'es5') {
+    return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, `${config.fsNamespace}.components.js`);
+  }
+  return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `${config.fsNamespace}.components.js`);
 }
 
 
 export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
-  return pathJoin(config, getAppBuildDir(config, outputTarget), `polyfills`);
+  return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, `polyfills`);
 }
 
 
