@@ -4,6 +4,7 @@
  */
 export const RESERVED_PROPERTIES: string[] = [
   'addListener',
+  'applyPolyfill',
   'attr',
   'color',
   'Context',
