@@ -1,6 +1,6 @@
 import { BuildCtx, CompilerCtx, ComponentMeta, ComponentRegistry, Config, EntryBundle, EntryModule, JSModuleMap, ModuleFile, SourceTarget } from '../../declarations';
 import { DEFAULT_STYLE_MODE } from '../../util/constants';
-import { getAppBuildDir, getBundleFilename } from '../app/app-file-naming';
+import { getAppBuildDir, getBundleFilename, getCoreEsmBuildDir } from '../app/app-file-naming';
 import { getStyleIdPlaceholder, getStylePlaceholder, replaceBundleIdPlaceholder } from '../../util/data-serialize';
 import { hasError, pathJoin } from '../util';
 import { minifyJs } from '../minifier';
@@ -65,6 +65,23 @@ export async function generateBundles(config: Config, compilerCtx: CompilerCtx, 
     config.logger.debug(`generate es5 finished`);
   }
 
+  const distOutputs = config.outputTargets.filter(o => o.type === 'dist');
+  await Promise.all(distOutputs.map(async distOutput => {
+    const es5Modules = jsModules.esmEs5;
+    const es5Promises = Object.keys(es5Modules)
+      .filter(key => !bundleKeys[key])
+      .map(key => { return [key, es5Modules[key]] as [string, { code: string}]; })
+      .map(async ([key, value]) => {
+        const fileName = getBundleFilename(key.replace('.js', ''), false);
+        let jsText = replaceBundleIdPlaceholder(value.code, key);
+        jsText = await transpileEs5Bundle(compilerCtx, buildCtx, jsText);
+
+        const distBuildPath = pathJoin(config, getCoreEsmBuildDir(config, distOutput), 'es5', fileName);
+        return compilerCtx.fs.writeFile(distBuildPath, jsText);
+      });
+    await Promise.all(es5Promises);
+    config.logger.debug(`generate esmEs5 finished`);
+  }));
 
   // create the registry of all the components
   const cmpRegistry = createComponentRegistry(entryModules);

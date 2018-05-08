@@ -1,6 +1,6 @@
 import { BuildCtx, CompilerCtx, Config, EntryModule, JSModuleMap } from '../../declarations';
 import { catchError } from '../util';
-import { createBundle, writeEsModules, writeLegacyModules  } from './rollup-bundle';
+import { createBundle, writeEsModules, writeEsmEs5Modules, writeLegacyModules  } from './rollup-bundle';
 import { minifyJs } from '../minifier';
 
 
@@ -21,6 +21,10 @@ export async function generateBundleModules(config: Config, compilerCtx: Compile
       // only create legacy modules when generating es5 fallbacks
       // bundle using commonjs using jsonp callback
       results.es5 = await writeLegacyModules(config, rollupBundle, entryModules);
+    }
+
+    if (config.outputTargets.some(o => o.type === 'dist')) {
+      results.esmEs5 = await writeEsmEs5Modules(config, rollupBundle, entryModules);
     }
 
     if (config.minifyJs) {

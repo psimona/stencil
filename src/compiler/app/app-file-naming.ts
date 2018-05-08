@@ -94,6 +94,19 @@ export function getComponentsEsmBuildPath(config: d.Config, outputTarget: d.Outp
 }
 
 
+export function getHyperScriptFnEsmFileName(config: d.Config) {
+  return `${config.fsNamespace}.h.js`;
+}
+
+
+export function getHyperScriptFnEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist, sourceTarget: d.SourceTarget) {
+  if (sourceTarget === 'es5') {
+    return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, getHyperScriptFnEsmFileName(config));
+  }
+  return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), getHyperScriptFnEsmFileName(config));
+}
+
+
 export function getPolyfillsEsmBuildPath(config: d.Config, outputTarget: d.OutputTargetDist) {
   return pathJoin(config, getCoreEsmBuildDir(config, outputTarget), `es5`, `polyfills`);
 }

@@ -4,6 +4,7 @@ import bundleJson from './rollup-plugins/json';
 import { createOnWarnFn, loadRollupDiagnostics } from '../../util/logger/logger-rollup';
 import { generatePreamble, hasError } from '../util';
 import { getBundleIdPlaceholder } from '../../util/data-serialize';
+import { getHyperScriptFnEsmFileName } from '../app/app-file-naming';
 import localResolution from './rollup-plugins/local-resolution';
 import inMemoryFsRead from './rollup-plugins/in-memory-fs-read';
 import { BundleSet, OutputChunk, RollupDirOptions, rollup } from 'rollup';
@@ -94,6 +95,26 @@ export async function writeLegacyModules(config: Config, rollupBundle: BundleSet
     },
     banner: generatePreamble(config),
     intro: `const h = window.${config.namespace}.h;`,
+    strict: false,
+  });
+
+  return <any>results as JSModuleList;
+}
+
+
+export async function writeEsmEs5Modules(config: Config, rollupBundle: BundleSet, entryModules: EntryModule[]) {
+  rollupBundle.cache.modules.forEach(module => {
+    const key = module.id;
+    const entryModule = entryModules.find(b => b.entryKey === `./${key}.js`);
+    if (entryModule) {
+      entryModule.dependencies = module.dependencies.slice();
+    }
+  });
+
+  const results: { [chunkName: string]: OutputChunk } = await rollupBundle.generate({
+    format: 'es',
+    banner: generatePreamble(config),
+    intro: `import { h } from './${getHyperScriptFnEsmFileName(config)}';`,
     strict: false,
   });
 
