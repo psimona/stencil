@@ -5,21 +5,33 @@ const ROOT_DIR = path.join(__dirname, '..');
 const SRC_DIR = path.join(ROOT_DIR, 'src', 'client', 'polyfills');
 
 
-module.exports = function buildPolyfills(outputPolyfillsEsmDir) {
-  fs.emptyDirSync(outputPolyfillsEsmDir);
+module.exports = function buildPolyfills(outputPolyfillsDir) {
+
+  fs.emptyDirSync(outputPolyfillsDir);
+
+  const esmDir = path.join(outputPolyfillsDir, 'esm');
+  fs.emptyDirSync(esmDir);
+
+  const es5Dir = path.join(outputPolyfillsDir, 'es5');
+  fs.emptyDirSync(es5Dir);
 
   const files = fs.readdirSync(SRC_DIR).filter(f => f.endsWith('.js'));
 
   files.forEach(fileName => {
     const srcFilePath = path.join(SRC_DIR, fileName);
-    const dstFilePath = path.join(outputPolyfillsEsmDir, fileName);
+    const esmFilePath = path.join(esmDir, fileName);
+    const es5FilePath = path.join(es5Dir, fileName);
 
-    const polyfillWrapped = [
+    const polyfillContent = fs.readFileSync(srcFilePath, 'utf-8');
+
+    const esmWrapped = [
       'export function applyPolyfill(window, document) {',
-      fs.readFileSync(srcFilePath, 'utf-8'),
+      polyfillContent,
       '}'
     ].join('\n');
 
-    fs.writeFileSync(dstFilePath, polyfillWrapped);
+    fs.writeFileSync(esmFilePath, esmWrapped);
+
+    fs.writeFileSync(es5FilePath, polyfillContent);
   });
 };

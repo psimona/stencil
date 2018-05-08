@@ -1,6 +1,6 @@
 import {
   customElementsDefine,
-  MyEsmComponent
+  EsmImport
 } from '../../test-dist/index.esm';
 
-customElementsDefine(window, MyEsmComponent);
+customElementsDefine(window, EsmImport);

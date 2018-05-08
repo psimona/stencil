@@ -44,13 +44,6 @@ async function generateEsmCoreEs5(config: d.Config, compilerCtx: d.CompilerCtx, 
   // #dealwithit
   jsContent = jsContent.replace('export function applyPolyfills', 'function applyPolyfills');
 
-  const removeThisStart = 'this && this.__extends';
-  const removeThisEnd = '}();';
-  const startIndex = jsContent.indexOf(removeThisStart);
-  const endIndex = jsContent.indexOf(removeThisEnd);
-  const cutThis = jsContent.substring(startIndex, endIndex + removeThisEnd.length);
-  jsContent = jsContent.replace(cutThis, '');
-
   jsContent = generatePreamble(config, `${config.namespace}: Core, ES5`) + '\n' + jsContent;
 
   await compilerCtx.fs.writeFile(coreEsm, jsContent);

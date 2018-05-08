@@ -1,13 +1,15 @@
-import { Component, Event, EventEmitter, Listen, Method, Prop, State } from '../../../../dist/index';
+import { Component, Element, Event, EventEmitter, Listen, Method, Prop, State } from '../../../../dist/index';
 
 
 @Component({
   tag: 'esm-import'
 })
-export class MyEsmComponent {
+export class EsmImport {
 
-  @Prop() propVal: number;
+  @Element() el: any;
+  @Prop() propVal = 0;
   @State() stateVal: number;
+  @State() someEventInc = 0;
   @Event() someEvent: EventEmitter;
 
   @Listen('click')
@@ -21,8 +23,16 @@ export class MyEsmComponent {
     this.stateVal++;
   }
 
+  testMethod() {
+    this.el.someMethod();
+  }
+
   componentWillLoad() {
     this.stateVal = 0;
+
+    this.el.parentElement.addEventListener('someEvent', () => {
+      this.el.propVal++;
+    });
   }
 
   render() {
@@ -31,7 +41,9 @@ export class MyEsmComponent {
         <p>esm-import</p>
         <p>propVal: {this.propVal}</p>
         <p>stateVal: {this.stateVal}</p>
-        <button>Listen Test</button>
+        <p>someEvent: {this.stateVal}</p>
+        <p><button>Listen Test</button></p>
+        <p><button onClick={this.testMethod.bind(this)}>Method Test</button></p>
       </div>
     );
   }

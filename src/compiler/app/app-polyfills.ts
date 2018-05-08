@@ -6,7 +6,7 @@ import { pathJoin } from '../util';
 export async function getAppBrowserCorePolyfills(config: d.Config) {
   // first load up all of the polyfill content
   const readFilePromises = POLYFILLS.map(polyfillFile => {
-    const staticName = config.sys.path.join('polyfills', polyfillFile);
+    const staticName = config.sys.path.join('polyfills', 'es5', polyfillFile);
     return config.sys.getClientCoreFile({ staticName: staticName });
   });
 
@@ -22,7 +22,7 @@ export async function copyEsmCorePolyfills(config: d.Config, compilerCtx: d.Comp
   const polyfillsBuildDir = getPolyfillsEsmBuildPath(config, outputTarget);
 
   await POLYFILLS.map(async polyfillFile => {
-    const staticName = config.sys.path.join('polyfills', polyfillFile);
+    const staticName = config.sys.path.join('polyfills', 'esm', polyfillFile);
     const polyfillsContent = await config.sys.getClientCoreFile({ staticName: staticName });
 
     const polyfillDst = pathJoin(config, polyfillsBuildDir, polyfillFile);
