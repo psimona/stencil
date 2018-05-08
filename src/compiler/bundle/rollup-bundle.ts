@@ -102,15 +102,7 @@ export async function writeLegacyModules(config: Config, rollupBundle: BundleSet
 }
 
 
-export async function writeEsmEs5Modules(config: Config, rollupBundle: BundleSet, entryModules: EntryModule[]) {
-  rollupBundle.cache.modules.forEach(module => {
-    const key = module.id;
-    const entryModule = entryModules.find(b => b.entryKey === `./${key}.js`);
-    if (entryModule) {
-      entryModule.dependencies = module.dependencies.slice();
-    }
-  });
-
+export async function writeEsmEs5Modules(config: Config, rollupBundle: BundleSet) {
   const results: { [chunkName: string]: OutputChunk } = await rollupBundle.generate({
     format: 'es',
     banner: generatePreamble(config),

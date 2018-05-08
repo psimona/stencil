@@ -1,7 +1,7 @@
 import * as d from '../../declarations';
 import { copyEsmCorePolyfills } from '../app/app-polyfills';
 import { generatePreamble, normalizePath } from '../util';
-import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistIndexEsmPath } from '../app/app-file-naming';
+import { getComponentsEsmBuildPath, getCoreEsmBuildPath, getDistEsmIndexPath } from '../app/app-file-naming';
 
 
 export async function generateEsmIndex(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist) {
@@ -15,7 +15,7 @@ export async function generateEsmIndex(config: d.Config, compilerCtx: d.Compiler
   const coreEsm = getCoreEsmBuildPath(config, outputTarget, 'es5');
   await addExport(config, compilerCtx, outputTarget, esm, coreEsm);
 
-  const distIndexEsmPath = getDistIndexEsmPath(config, outputTarget);
+  const distIndexEsmPath = getDistEsmIndexPath(config, outputTarget);
 
   await Promise.all([
     compilerCtx.fs.writeFile(distIndexEsmPath, esm.join('\n')),

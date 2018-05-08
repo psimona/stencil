@@ -24,7 +24,7 @@ export async function generateBundleModules(config: Config, compilerCtx: Compile
     }
 
     if (config.outputTargets.some(o => o.type === 'dist')) {
-      results.esmEs5 = await writeEsmEs5Modules(config, rollupBundle, entryModules);
+      results.esmEs5 = await writeEsmEs5Modules(config, rollupBundle);
     }
 
     if (config.minifyJs) {
@@ -40,14 +40,14 @@ export async function generateBundleModules(config: Config, compilerCtx: Compile
 
 
 async function minifyChunks(config: Config, compilerCtx: CompilerCtx, buildCtx: BuildCtx, results: JSModuleMap) {
-  const promises = Object.keys(results).map((moduleType: 'esm' | 'es5') => {
+  const promises = Object.keys(results).map((moduleType: 'esm' | 'es5' | 'esmEs5') => {
     const jsModuleList = results[moduleType];
 
     const promises = Object.keys(jsModuleList)
       .filter(m => m.startsWith('chunk'))
       .map(chunkKey => jsModuleList[chunkKey])
       .map(async chunk => {
-        const sourceTarget = moduleType === 'es5' ? 'es5' : 'es2017';
+        const sourceTarget = (moduleType === 'es5' || moduleType === 'esmEs5') ? 'es5' : 'es2017';
         const minifyJsResults = await minifyJs(config, compilerCtx, chunk.code, sourceTarget, true);
 
         if (minifyJsResults.diagnostics.length) {

@@ -46,6 +46,9 @@ function generateEsmHostClassEs5(cmpMeta: d.ComponentMeta, isScoped: boolean) {
   c.push(`var ${cmpMeta.componentClass} = /** @class **/ (function() {`);
   c.push(`  function ${cmpMeta.componentClass}() {}`);
   c.push(`  ${cmpMeta.componentClass}.is = '${cmpMeta.tagNameMeta}';`);
+
+
+
   c.push(`  ${cmpMeta.componentClass}.getModule = function(opts) {${getModule(cmpMeta, isScoped)}\n  };`);
   c.push(`})();`);
 

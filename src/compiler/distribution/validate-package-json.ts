@@ -2,7 +2,7 @@ import * as d from '../../declarations';
 import { buildWarn, normalizePath, pathJoin } from '../util';
 import { COLLECTION_MANIFEST_FILE_NAME } from '../../util/constants';
 import { COMPONENTS_DTS } from './distribution';
-import { getDistIndexCjsPath, getDistIndexEsmPath, getLoaderPath } from '../app/app-file-naming';
+import { getDistCjsIndexPath, getDistEsmIndexPath, getLoaderPath } from '../app/app-file-naming';
 
 
 export function validatePackageFiles(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
@@ -28,7 +28,7 @@ export function validatePackageFiles(config: d.Config, outputTarget: d.OutputTar
 
 
 export async function validateModule(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const moduleAbs = getDistIndexEsmPath(config, outputTarget);
+  const moduleAbs = getDistEsmIndexPath(config, outputTarget);
   const moduleRel = normalizePath(config.sys.path.relative(config.rootDir, moduleAbs));
 
   if (typeof pkgData.module !== 'string') {
@@ -50,7 +50,7 @@ export async function validateModule(config: d.Config, compilerCtx: d.CompilerCt
 
 
 export async function validateMain(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const mainAbs = getDistIndexCjsPath(config, outputTarget);
+  const mainAbs = getDistCjsIndexPath(config, outputTarget);
   const mainRel = pathJoin(config, config.sys.path.relative(config.rootDir, mainAbs));
 
   if (typeof pkgData.main !== 'string' || pkgData.main === '') {

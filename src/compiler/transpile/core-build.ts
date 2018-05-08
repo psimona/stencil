@@ -71,7 +71,8 @@ export async function transpileToEs5(compilerCtx: d.CompilerCtx, input: string) 
     compilerOptions: {
       allowJs: true,
       declaration: false,
-      target: ts.ScriptTarget.ES5
+      target: ts.ScriptTarget.ES5,
+      module: ts.ModuleKind.ESNext
     }
   };
 
