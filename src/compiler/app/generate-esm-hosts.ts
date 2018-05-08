@@ -1,4 +1,5 @@
 import * as d from '../../declarations';
+import { dashToPascalCase } from '../../util/helpers';
 import { ENCAPSULATION } from '../../util/constants';
 import { generatePreamble } from '../util';
 import { getComponentsEsmBuildPath } from '../../compiler/app/app-file-naming';
@@ -50,6 +51,7 @@ function generateEsmHostClassEs5(cmpMeta: d.ComponentMeta, isScoped: boolean) {
 
 
   c.push(`  ${cmpMeta.componentClass}.getModule = function(opts) {${getModule(cmpMeta, isScoped)}\n  };`);
+  c.push(`  return ${cmpMeta.componentClass};`);
   c.push(`})();`);
 
   return c.join('\n');
@@ -59,7 +61,8 @@ function generateEsmHostClassEs5(cmpMeta: d.ComponentMeta, isScoped: boolean) {
 function getModule(cmpMeta: d.ComponentMeta, isScoped: boolean) {
   return Object.keys(cmpMeta.bundleIds).map(styleMode => {
     const fileNameEs5 = getModuleFileName(cmpMeta, styleMode);
-    return getModuleImport(styleMode, fileNameEs5, isScoped, cmpMeta.componentClass);
+    const pascalCasedClassName = dashToPascalCase(cmpMeta.tagNameMeta);
+    return getModuleImport(styleMode, fileNameEs5, isScoped, pascalCasedClassName);
   }).join('\n    ');
 }
 
@@ -70,32 +73,32 @@ function getModuleFileName(cmpMeta: d.ComponentMeta, styleMode: string) {
 }
 
 
-function getModuleImport(styleMode: string, fileName: string, isScoped: boolean, className: string) {
+function getModuleImport(styleMode: string, fileName: string, isScoped: boolean, pascalCasedClassName: string) {
   if (styleMode === '$' && isScoped) {
     return `
     if (opts.scoped) {
-      return import('${fileName}.sc.js').then(function(m) { return m.${className}; });
+      return import('${fileName}.sc.js').then(function(m) { return m.${pascalCasedClassName}; });
     }
-    return import('${fileName}.js').then(function(m) { return m.${className}; });`;
+    return import('${fileName}.js').then(function(m) { return m.${pascalCasedClassName}; });`;
   }
 
   if (styleMode === '$') {
     return `
-    return import('${fileName}.js').then(function(m) { return m.${className}; });`;
+    return import('${fileName}.js').then(function(m) { return m.${pascalCasedClassName}; });`;
   }
 
   if (isScoped) {
   return `
     if (opts.mode === '${styleMode}' && opts.scoped) {
-      return import('${fileName}.sc.js').then(function(m) { return m.${className}; });
+      return import('${fileName}.sc.js').then(function(m) { return m.${pascalCasedClassName}; });
     } else if (opts.mode === '${styleMode}') {
-      return import('${fileName}.js').then(function(m) { return m.${className}; });
+      return import('${fileName}.js').then(function(m) { return m.${pascalCasedClassName}; });
     }`;
   }
 
   return `
     if (opts.mode === '${styleMode}') {
-      return import('${fileName}.js').then(function(m) { return m.${className}; });
+      return import('${fileName}.js').then(function(m) { return m.${pascalCasedClassName}; });
     }`;
 }
 

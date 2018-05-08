@@ -7,5 +7,6 @@ module.exports = {
     filename: 'webpack.bundle.js',
     publicPath: '/esm-imports/'
   },
-  mode: 'none'
+  // mode: 'production'
+  mode: 'development'
 };
