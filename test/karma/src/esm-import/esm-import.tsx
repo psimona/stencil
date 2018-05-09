@@ -9,12 +9,13 @@ export class EsmImport {
   @Element() el: any;
   @Prop() propVal = 0;
   @State() stateVal: string;
+  @State() listenVal = 0;
   @State() someEventInc = 0;
   @Event() someEvent: EventEmitter;
 
-  @Listen('input')
-  testClick(ev: any) {
-    this.stateVal = ev.target.value;
+  @Listen('click')
+  testClick() {
+    this.listenVal++;
   }
 
   @Method()
@@ -40,9 +41,9 @@ export class EsmImport {
     return (
       <div>
         <p>esm-import</p>
-        <p>propVal: {this.propVal}</p>
-        <p>stateVal: {this.stateVal}</p>
-        <p><input/></p>
+        <p id="propVal">propVal: {this.propVal}</p>
+        <p id="stateVal">stateVal: {this.stateVal}</p>
+        <p id="listenVal">listenVal: {this.listenVal}</p>
         <p><button onClick={this.testMethod.bind(this)}>Test</button></p>
       </div>
     );
