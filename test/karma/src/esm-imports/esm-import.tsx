@@ -8,19 +8,18 @@ export class EsmImport {
 
   @Element() el: any;
   @Prop() propVal = 0;
-  @State() stateVal: number;
+  @State() stateVal: string;
   @State() someEventInc = 0;
   @Event() someEvent: EventEmitter;
 
-  @Listen('click')
-  testClick() {
-    this.stateVal++;
-    this.someEvent.emit(this.stateVal);
+  @Listen('input')
+  testClick(ev: any) {
+    this.stateVal = ev.target.value;
   }
 
   @Method()
   someMethod() {
-    this.stateVal++;
+    this.someEvent.emit();
   }
 
   testMethod() {
@@ -28,8 +27,10 @@ export class EsmImport {
   }
 
   componentWillLoad() {
-    this.stateVal = 0;
+    this.stateVal = 'mph';
+  }
 
+  componentDidLoad() {
     this.el.parentElement.addEventListener('someEvent', () => {
       this.el.propVal++;
     });
@@ -41,9 +42,8 @@ export class EsmImport {
         <p>esm-import</p>
         <p>propVal: {this.propVal}</p>
         <p>stateVal: {this.stateVal}</p>
-        <p>someEvent: {this.stateVal}</p>
-        <p><button>Listen Test</button></p>
-        <p><button onClick={this.testMethod.bind(this)}>Method Test</button></p>
+        <p><input/></p>
+        <p><button onClick={this.testMethod.bind(this)}>Test</button></p>
       </div>
     );
   }

@@ -3,6 +3,7 @@ import { dashToPascalCase } from '../../util/helpers';
 import { ENCAPSULATION } from '../../util/constants';
 import { generatePreamble } from '../util';
 import { getComponentsEsmBuildPath } from '../../compiler/app/app-file-naming';
+import { formatComponentConstructorListeners, formatComponentConstructorProperties } from '../../util/data-serialize';
 
 
 export async function generateEsmHosts(config: d.Config, compilerCtx: d.CompilerCtx, cmpRegistry: d.ComponentRegistry, outputTarget: d.OutputTarget) {
@@ -48,7 +49,15 @@ function generateEsmHostClassEs5(cmpMeta: d.ComponentMeta, isScoped: boolean) {
   c.push(`  function ${cmpMeta.componentClass}() {}`);
   c.push(`  ${cmpMeta.componentClass}.is = '${cmpMeta.tagNameMeta}';`);
 
+  const properties = formatComponentConstructorProperties(cmpMeta.membersMeta, true);
+  if (properties) {
+    c.push(`  ${cmpMeta.componentClass}.properties = ${properties};`);
+  }
 
+  const listeners = formatComponentConstructorListeners(cmpMeta.listenersMeta, true);
+  if (listeners) {
+    c.push(`  ${cmpMeta.componentClass}.listeners = ${listeners};`);
+  }
 
   c.push(`  ${cmpMeta.componentClass}.getModule = function(opts) {${getModule(cmpMeta, isScoped)}\n  };`);
   c.push(`  return ${cmpMeta.componentClass};`);

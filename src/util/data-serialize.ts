@@ -154,7 +154,7 @@ function formatListeners(listeners: d.ListenMeta[]) {
 }
 
 
-export function formatComponentConstructorProperties(membersMeta: d.MembersMeta) {
+export function formatComponentConstructorProperties(membersMeta: d.MembersMeta, stringify?: boolean) {
   if (!membersMeta) {
     return null;
   }
@@ -172,14 +172,22 @@ export function formatComponentConstructorProperties(membersMeta: d.MembersMeta)
   const properties: d.ComponentConstructorProperties = {};
 
   memberNames.forEach(memberName => {
-    properties[memberName] = formatComponentConstructorProperty(membersMeta[memberName]);
+    properties[memberName] = formatComponentConstructorProperty(membersMeta[memberName], stringify) as any;
   });
+
+  if (stringify) {
+    let str = JSON.stringify(properties);
+    str = str.replace(`"TYPE_String"`, `String`);
+    str = str.replace(`"TYPE_Boolean"`, `Boolean`);
+    str = str.replace(`"TYPE_Number"`, `Number`);
+    return str;
+  }
 
   return properties;
 }
 
 
-function formatComponentConstructorProperty(memberMeta: d.MemberMeta) {
+function formatComponentConstructorProperty(memberMeta: d.MemberMeta, stringify?: boolean) {
   const property: d.ComponentConstructorProperty = {};
 
   if (memberMeta.memberType === MEMBER_TYPE.State) {
@@ -199,13 +207,25 @@ function formatComponentConstructorProperty(memberMeta: d.MemberMeta) {
 
   } else {
     if (memberMeta.propType === PROP_TYPE.String) {
-      property.type = String;
+      if (stringify) {
+        property.type = 'TYPE_String' as any;
+      } else {
+        property.type = String;
+      }
 
     } else if (memberMeta.propType === PROP_TYPE.Boolean) {
-      property.type = Boolean;
+      if (stringify) {
+        property.type = 'TYPE_Boolean' as any;
+      } else {
+        property.type = Boolean;
+      }
 
     } else if (memberMeta.propType === PROP_TYPE.Number) {
-      property.type = Number;
+      if (stringify) {
+        property.type = 'TYPE_Number' as any;
+      } else {
+        property.type = Number;
+      }
 
     } else {
       property.type = 'Any';
@@ -269,12 +289,18 @@ export function formatComponentConstructorEvent(eventMeta: d.EventMeta) {
 }
 
 
-export function formatComponentConstructorListeners(listenersMeta: d.ListenMeta[]) {
+export function formatComponentConstructorListeners(listenersMeta: d.ListenMeta[], stringify?: boolean) {
   if (!listenersMeta || !listenersMeta.length) {
     return null;
   }
 
-  return listenersMeta.map(ev => formatComponentConstructorListener(ev));
+  const listeners = listenersMeta.map(ev => formatComponentConstructorListener(ev));
+
+  if (stringify) {
+    return JSON.stringify(listeners);
+  }
+
+  return listeners;
 }
 
 
