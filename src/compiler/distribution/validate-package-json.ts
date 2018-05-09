@@ -28,7 +28,7 @@ export function validatePackageFiles(config: d.Config, outputTarget: d.OutputTar
 
 
 export async function validateModule(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const moduleAbs = getDistEsmIndexPath(config, outputTarget);
+  const moduleAbs = config.sys.path.join(outputTarget.dir, getDistEsmIndexPath(config, outputTarget));
   const moduleRel = normalizePath(config.sys.path.relative(config.rootDir, moduleAbs));
 
   if (typeof pkgData.module !== 'string') {
@@ -50,7 +50,7 @@ export async function validateModule(config: d.Config, compilerCtx: d.CompilerCt
 
 
 export async function validateMain(config: d.Config, compilerCtx: d.CompilerCtx, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const mainAbs = getDistCjsIndexPath(config, outputTarget);
+  const mainAbs = config.sys.path.join(outputTarget.dir, getDistCjsIndexPath(config, outputTarget));
   const mainRel = pathJoin(config, config.sys.path.relative(config.rootDir, mainAbs));
 
   if (typeof pkgData.main !== 'string' || pkgData.main === '') {
@@ -106,10 +106,12 @@ export async function validateTypes(config: d.Config, compilerCtx: d.CompilerCtx
 
 
 export function validateCollection(config: d.Config, outputTarget: d.OutputTargetDist, diagnostics: d.Diagnostic[], pkgData: d.PackageJsonData) {
-  const collection = pathJoin(config, config.sys.path.relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME);
-  if (!pkgData.collection || normalizePath(pkgData.collection) !== collection) {
-    const err = buildWarn(diagnostics);
-    err.messageText = `package.json "collection" property is required when generating a distribution and must be set to: ${collection}`;
+  if (outputTarget.collectionDir) {
+    const collectionRel = pathJoin(config, config.sys.path.relative(config.rootDir, outputTarget.collectionDir), COLLECTION_MANIFEST_FILE_NAME);
+    if (!pkgData.collection || normalizePath(pkgData.collection) !== collectionRel) {
+      const err = buildWarn(diagnostics);
+      err.messageText = `package.json "collection" property is required when generating a distribution and must be set to: ${collectionRel}`;
+    }
   }
 }
 

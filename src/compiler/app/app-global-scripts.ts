@@ -20,17 +20,15 @@ export async function generateAppGlobalScript(config: Config, compilerCtx: Compi
 
     compilerCtx.appFiles.global = globalJsContent;
 
-    const outputTargets = config.outputTargets.filter(outputTarget => {
-      return outputTarget.appBuild;
-    });
-
     const promises: Promise<any>[] = [];
 
-    outputTargets.forEach(outputTarget => {
-      let appGlobalFilePath = getGlobalJsBuildPath(config, outputTarget);
+    config.outputTargets.filter(o => o.appBuild).forEach(outputTarget => {
+      const appGlobalFilePath = getGlobalJsBuildPath(config, outputTarget);
       promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalJsContent));
+    });
 
-      appGlobalFilePath = getGlobalEsmBuildPath(config, outputTarget, 'es5');
+    config.outputTargets.filter(o => o.type === 'dist').forEach(outputTarget => {
+      const appGlobalFilePath = getGlobalEsmBuildPath(config, outputTarget, 'es5');
       promises.push(compilerCtx.fs.writeFile(appGlobalFilePath, globalEsmContent));
     });
 
