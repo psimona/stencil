@@ -154,7 +154,20 @@ function formatListeners(listeners: d.ListenMeta[]) {
 }
 
 
-export function formatComponentConstructorProperties(membersMeta: d.MembersMeta, stringify?: boolean) {
+export function formatConstructorEncapsulation(encapsulation: ENCAPSULATION) {
+  if (encapsulation) {
+    if (encapsulation === ENCAPSULATION.ShadowDom) {
+      return 'shadow';
+
+    } else if (encapsulation === ENCAPSULATION.ScopedCss) {
+      return 'scoped';
+    }
+  }
+  return null;
+}
+
+
+export function formatComponentConstructorProperties(membersMeta: d.MembersMeta, stringify?: boolean, excludeInternal?: boolean) {
   if (!membersMeta) {
     return null;
   }
@@ -172,8 +185,15 @@ export function formatComponentConstructorProperties(membersMeta: d.MembersMeta,
   const properties: d.ComponentConstructorProperties = {};
 
   memberNames.forEach(memberName => {
-    properties[memberName] = formatComponentConstructorProperty(membersMeta[memberName], stringify) as any;
+    const prop = formatComponentConstructorProperty(membersMeta[memberName], stringify, excludeInternal) as any;
+    if (prop !== null) {
+      properties[memberName] = prop;
+    }
   });
+
+  if (!Object.keys(properties).length) {
+    return null;
+  }
 
   if (stringify) {
     let str = JSON.stringify(properties);
@@ -187,22 +207,26 @@ export function formatComponentConstructorProperties(membersMeta: d.MembersMeta,
 }
 
 
-function formatComponentConstructorProperty(memberMeta: d.MemberMeta, stringify?: boolean) {
+function formatComponentConstructorProperty(memberMeta: d.MemberMeta, stringify?: boolean, excludeInternal?: boolean) {
   const property: d.ComponentConstructorProperty = {};
 
   if (memberMeta.memberType === MEMBER_TYPE.State) {
+    if (excludeInternal) return null;
     property.state = true;
 
   } else if (memberMeta.memberType === MEMBER_TYPE.Element) {
+    if (excludeInternal) return null;
     property.elementRef = true;
 
   } else if (memberMeta.memberType === MEMBER_TYPE.Method) {
     property.method = true;
 
   } else if (memberMeta.memberType === MEMBER_TYPE.PropConnect) {
+    if (excludeInternal) return null;
     property.connect = memberMeta.ctrlId;
 
   } else if (memberMeta.memberType === MEMBER_TYPE.PropContext) {
+    if (excludeInternal) return null;
     property.context = memberMeta.ctrlId;
 
   } else {

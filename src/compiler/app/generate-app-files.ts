@@ -4,7 +4,7 @@ import { createAppRegistry, writeAppRegistry } from './app-registry';
 import { generateAppGlobalScript } from './app-global-scripts';
 import { generateCoreBrowser } from './app-core-browser';
 import { generateEsmCore } from './app-core-esm';
-import { generateEsmHosts } from './generate-esm-hosts';
+import { generateEsmHosts } from '../output-targets/esm';
 import { generateEs5DisabledMessage } from './app-es5-disabled';
 import { generateGlobalStyles } from './app-global-styles';
 import { generateLoader } from './app-loader';

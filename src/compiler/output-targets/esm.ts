@@ -3,7 +3,7 @@ import { dashToPascalCase } from '../../util/helpers';
 import { ENCAPSULATION } from '../../util/constants';
 import { generatePreamble } from '../util';
 import { getComponentsEsmBuildPath } from '../../compiler/app/app-file-naming';
-import { formatComponentConstructorListeners, formatComponentConstructorProperties } from '../../util/data-serialize';
+import { formatComponentConstructorListeners, formatComponentConstructorProperties, formatConstructorEncapsulation } from '../../util/data-serialize';
 
 
 export async function generateEsmHosts(config: d.Config, compilerCtx: d.CompilerCtx, cmpRegistry: d.ComponentRegistry, outputTarget: d.OutputTarget) {
@@ -26,10 +26,10 @@ async function generateEsmEs5(config: d.Config, compilerCtx: d.CompilerCtx, cmpR
 
   Object.keys(cmpRegistry).sort().forEach(tagName => {
     const cmpMeta = cmpRegistry[tagName];
-    const isScoped = cmpMeta.encapsulation === ENCAPSULATION.ScopedCss;
     componentClassList.push(cmpMeta.componentClass);
 
-    fileContents.push(generateEsmHostClassEs5(cmpMeta, isScoped));
+    const data = generateConstructorData(cmpMeta);
+    fileContents.push(`var ${cmpMeta.componentClass} = ${data};`);
   });
 
   fileContents.push(
@@ -42,26 +42,30 @@ async function generateEsmEs5(config: d.Config, compilerCtx: d.CompilerCtx, cmpR
 }
 
 
-function generateEsmHostClassEs5(cmpMeta: d.ComponentMeta, isScoped: boolean) {
+function generateConstructorData(cmpMeta: d.ComponentMeta) {
   const c: string[] = [];
+  const isScoped = cmpMeta.encapsulation === ENCAPSULATION.ScopedCss;
 
-  c.push(`var ${cmpMeta.componentClass} = /** @class **/ (function() {`);
-  c.push(`  function ${cmpMeta.componentClass}() {}`);
-  c.push(`  ${cmpMeta.componentClass}.is = '${cmpMeta.tagNameMeta}';`);
+  c.push(`{`);
+  c.push(`  is: '${cmpMeta.tagNameMeta}',`);
 
-  const properties = formatComponentConstructorProperties(cmpMeta.membersMeta, true);
+  const encapsulation = formatConstructorEncapsulation(cmpMeta.encapsulation);
+  if (encapsulation) {
+    c.push(`  encapsulation: '${encapsulation}',`);
+  }
+
+  const properties = formatComponentConstructorProperties(cmpMeta.membersMeta, true, true);
   if (properties) {
-    c.push(`  ${cmpMeta.componentClass}.properties = ${properties};`);
+    c.push(`  properties: ${properties},`);
   }
 
   const listeners = formatComponentConstructorListeners(cmpMeta.listenersMeta, true);
   if (listeners) {
-    c.push(`  ${cmpMeta.componentClass}.listeners = ${listeners};`);
+    c.push(`  listeners: ${listeners},`);
   }
 
-  c.push(`  ${cmpMeta.componentClass}.getModule = function(opts) {${getModule(cmpMeta, isScoped)}\n  };`);
-  c.push(`  return ${cmpMeta.componentClass};`);
-  c.push(`})();`);
+  c.push(`  getModule: function(opts) {${getModule(cmpMeta, isScoped)}\n  }`);
+  c.push(`}`);
 
   return c.join('\n');
 }
